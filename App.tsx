@@ -34,7 +34,15 @@ import { VisualComparisonHub } from './components/VisualComparisonHub';
 import MaintenanceMode from './components/MaintenanceMode';
 import { usePlatformSettings } from './lib/usePlatformSettings';
 
+// New informational pages
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
+import RiskPage from './pages/RiskPage';
+
 // ScrollToTop Component - Scrolls to top on route change
+// ... [No changes to ScrollToTop, ProtectedRoute, etc.]
 const ScrollToTop: React.FC = () => {
     const { pathname } = useLocation();
 
@@ -98,6 +106,13 @@ const MainLayout = () => {
                             <Route path="/competitions" element={<CompetitionsPage />} />
                             <Route path="/competition/:id" element={<CompetitionDetailPage />} />
                             <Route path="/offers" element={<OffersPage />} />
+
+                            {/* Informational & Legal Pages */}
+                            <Route path="/about" element={<AboutPage />} />
+                            <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/terms" element={<TermsPage />} />
+                            <Route path="/privacy" element={<PrivacyPage />} />
+                            <Route path="/risk" element={<RiskPage />} />
 
                             {/* Protected User Dashboard */}
                             <Route path="/dashboard" element={
