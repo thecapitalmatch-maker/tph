@@ -1,201 +1,211 @@
-import React from 'react';
-import { TrendingUp } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Activity, ShieldCheck, Clock, Zap } from 'lucide-react';
+
+// Custom Interactive 3D Card Component
+const TiltCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const [rotation, setRotation] = useState({ x: 0, y: 0 });
+    const [isHovering, setIsHovering] = useState(false);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!cardRef.current) return;
+        const rect = cardRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        // Calculate rotation (inverted for a natural, "pressing in" feel)
+        const rotateX = ((y - centerY) / centerY) * -10;
+        const rotateY = ((x - centerX) / centerX) * 10;
+
+        setRotation({ x: rotateX, y: rotateY });
+    };
+
+    const handleMouseEnter = () => setIsHovering(true);
+
+    const handleMouseLeave = () => {
+        setIsHovering(false);
+        setRotation({ x: 0, y: 0 });
+    };
+
+    return (
+        <div
+            ref={cardRef}
+            onMouseMove={handleMouseMove}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={{
+                transform: `perspective(1200px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale3d(${isHovering ? 1.01 : 1}, ${isHovering ? 1.01 : 1}, ${isHovering ? 1.01 : 1})`,
+                transition: isHovering ? 'transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                transformStyle: 'preserve-3d',
+            }}
+            className={`relative group ${className}`}
+        >
+            {/* Ambient Background Hover Glow */}
+            <div
+                className={`absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-brand-gold/30 rounded-[2rem] blur-xl opacity-0 transition-opacity duration-500 ${isHovering ? 'opacity-100' : ''}`}
+                style={{ transform: 'translateZ(-1px)' }}
+            />
+
+            {/* The Actual Glass Card */}
+            <div
+                className="relative h-full w-full bg-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl"
+                style={{ transformStyle: 'preserve-3d' }}
+            >
+                {/* Shiny highlight sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30 mix-blend-overlay pointer-events-none" />
+
+                {/* 3D Pop-out Content Container */}
+                <div style={{ transform: 'translateZ(30px)' }} className="h-full">
+                    {children}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const DataDashboardPreview: React.FC = () => {
     return (
-        <section className="relative py-24 sm:py-32 bg-transparent overflow-hidden font-sans border-t border-brand-border/20">
+        <section className="relative py-24 sm:py-32 bg-transparent overflow-hidden font-sans border-t border-brand-border/20 z-10 w-full">
 
-            {/* Ambient Background Glows */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] pointer-events-none flex flex-col items-center">
-                <div className="absolute top-1/4 w-[600px] h-[600px] bg-primary/20 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse-slow"></div>
-                <div className="absolute top-0 w-[1000px] h-[800px] bg-brand-gold/10 blur-[150px] rounded-[100%] mix-blend-screen opacity-30"></div>
+            {/* Subtle Site-wide Integration Glows */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none">
+                <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full mix-blend-screen animate-pulse-slow"></div>
+                <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-brand-gold/5 blur-[100px] rounded-full mix-blend-screen"></div>
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 flex flex-col items-center">
 
                 {/* Header Section */}
-                <div className="text-center mb-16 sm:mb-24 flex flex-col items-center w-full max-w-2xl">
-                    <h3 className="text-brand-gold text-xs sm:text-sm font-bold tracking-[0.2em] mb-4 uppercase">
-                        Join the Revolution
+                <div className="text-center mb-16 sm:mb-20">
+                    <h3 className="text-primary text-xs sm:text-sm font-bold tracking-[0.2em] mb-3 uppercase flex items-center justify-center">
+                        <Zap className="w-4 h-4 mr-2" /> Next-Gen Intelligence
                     </h3>
-                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-medium text-white mb-6 tracking-tight leading-[1.1] drop-shadow-sm">
-                        Setting a New Standard<br />
-                        <span className="text-white/90">in Prop Trading</span>
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-semibold text-white mb-6 tracking-tight drop-shadow-md">
+                        Data-Driven <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-brand-gold">Precision</span>
                     </h2>
-                    <p className="text-[15px] sm:text-base text-brand-muted font-light px-4 leading-relaxed max-w-lg">
-                        Our innovative AI exchange technology delivers unmatched performance data, making your trading journey more effective.
+                    <p className="text-[15px] sm:text-base text-brand-muted font-light max-w-2xl mx-auto leading-relaxed">
+                        Navigate the prop space with absolute clarity. Our interactive ecosystem transforms raw industry data into powerful, actionable insights.
                     </p>
                 </div>
 
-                {/* Dashboard Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 w-full max-w-5xl">
+                {/* Bento Box Layout Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 w-full max-w-6xl mx-auto">
 
-                    {/* Left Block - Data Table Style */}
-                    <div className="group relative flex flex-col transition-all duration-700 hover:-translate-y-2">
-                        {/* Outer Glow on Hover */}
-                        <div className="absolute -inset-[1px] bg-gradient-to-r from-primary/30 via-brand-gold/30 to-primary/30 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700"></div>
-
-                        {/* The Glass Card */}
-                        <div className="relative flex-grow bg-white/[0.02] backdrop-blur-3xl border border-white/10 group-hover:border-white/20 rounded-3xl p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-all duration-500">
-
-                            {/* Inner Top Highlight */}
-                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50"></div>
-                            {/* Animated Background Gradient Sweep */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                            <h4 className="text-white text-lg sm:text-xl font-medium mb-8 relative z-10">Firm Pricing</h4>
-
-                            <div className="space-y-6 flex-grow flex flex-col justify-center relative z-10">
-                                {/* Row 1 */}
-                                <div className="flex items-center justify-between group/row">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 group-hover/row:border-primary/50 transition-colors flex items-center justify-center p-2 shadow-inner">
-                                            <img src="https://thecapitalmatch.com/wp-content/uploads/2024/11/ftmo-logo.png" alt="FTMO" className="w-full h-full object-contain filter brightness-200" />
-                                        </div>
-                                        <div>
-                                            <div className="text-white font-medium text-base">FTMO</div>
-                                            <div className="text-brand-muted text-xs mt-0.5 uppercase tracking-wide">100k Challenge</div>
-                                        </div>
+                    {/* Left Hero Card - 3D Logo Presentation (Spans 7 cols) */}
+                    <div className="lg:col-span-7 h-[500px] w-full max-w-full">
+                        <TiltCard className="h-full w-full">
+                            <div className="absolute inset-0 p-8 flex flex-col justify-between h-full">
+                                {/* Top Badges */}
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center space-x-2 bg-white/5 border border-white/10 backdrop-blur-md px-3 py-1.5 rounded-full">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+                                        <span className="text-white text-xs font-medium">System Online</span>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-white font-medium text-base">$540.00</div>
-                                        <div className="text-brand-gold text-xs font-medium mt-1 flex items-center justify-end">
-                                            Popular <TrendingUp className="w-3 h-3 ml-1" />
-                                        </div>
+                                    <div className="bg-primary/20 border border-primary/30 text-primary px-3 py-1.5 rounded-full text-xs font-medium flex items-center shadow-[inset_0_1px_4px_rgba(var(--primary),0.3)]">
+                                        <Activity className="w-3.5 h-3.5 mr-1.5" /> Live Engine
                                     </div>
                                 </div>
 
-                                {/* Divider */}
-                                <div className="w-full h-px bg-white/5 border-dashed border-b border-white/5 my-2"></div>
+                                {/* Floating 3D Logo in Center */}
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none mt-4">
+                                    <img
+                                        src="/3d-logo.png"
+                                        alt="Capital Match 3D Core"
+                                        className="w-[280px] h-[280px] md:w-[320px] md:h-[320px] object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] filter brightness-110 saturate-150 transition-transform duration-1000 group-hover:scale-105"
+                                        style={{ transform: 'translateZ(60px)' }} // Extreme pop-out for logo
+                                    />
+                                </div>
 
-                                {/* Row 2 */}
-                                <div className="flex items-center justify-between group/row">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 group-hover/row:border-primary/50 transition-colors flex items-center justify-center p-2 shadow-inner">
-                                            <img src="https://thecapitalmatch.com/wp-content/uploads/2024/11/FundedNext-Logo.png" alt="FundedNext" className="w-full h-full object-contain filter brightness-200" />
-                                        </div>
-                                        <div>
-                                            <div className="text-white font-medium text-base">FundedNext</div>
-                                            <div className="text-brand-muted text-xs mt-0.5 uppercase tracking-wide">100k Stellar</div>
-                                        </div>
+                                {/* Bottom Metrics */}
+                                <div className="mt-auto grid grid-cols-2 gap-4 relative z-10 w-full pt-8">
+                                    <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4 border border-white/10 flex flex-col w-full">
+                                        <span className="text-brand-muted text-xs font-medium mb-1 uppercase tracking-wider line-clamp-1">Active Evaluators</span>
+                                        <span className="text-white text-2xl font-semibold tracking-tight">14,392</span>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-white font-medium text-base">$519.00</div>
-                                        <div className="text-primary text-xs font-medium mt-1 flex items-center justify-end">
-                                            Trending <TrendingUp className="w-3 h-3 ml-1" />
-                                        </div>
+                                    <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4 border border-white/10 flex flex-col relative overflow-hidden w-full">
+                                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-gold/20 blur-xl rounded-full"></div>
+                                        <span className="text-brand-muted text-xs font-medium mb-1 uppercase tracking-wider line-clamp-1">Matched Capital</span>
+                                        <span className="text-brand-gold text-2xl font-semibold tracking-tight">$84.5M+</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Explanatory Text */}
-                        <div className="mt-6 px-4">
-                            <p className="text-brand-muted text-sm leading-relaxed">
-                                <span className="text-white font-medium drop-shadow-md">Live Data.</span> Access up-to-date pricing data and challenge metrics for efficient evaluation.
-                            </p>
-                        </div>
+                        </TiltCard>
                     </div>
 
-                    {/* Right Block - Chart Style */}
-                    <div className="group relative flex flex-col transition-all duration-700 hover:-translate-y-2 hover:translate-x-1 md:translate-y-8">
-                        {/* Outer Glow on Hover */}
-                        <div className="absolute -inset-[1px] bg-gradient-to-r from-brand-gold/30 via-primary/30 to-brand-gold/30 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700"></div>
+                    {/* Right Stacked Cards (Spans 5 cols) */}
+                    <div className="lg:col-span-5 grid grid-rows-2 gap-6 sm:gap-8 h-[500px]">
 
-                        {/* The Glass Card */}
-                        <div className="relative flex-grow bg-white/[0.02] backdrop-blur-3xl border border-white/10 group-hover:border-white/20 rounded-3xl p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-all duration-500">
-
-                            {/* Inner Top Highlight */}
-                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50"></div>
-                            {/* Animated Background Gradient Sweep */}
-                            <div className="absolute inset-0 bg-gradient-to-bl from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                            <div className="flex justify-between items-start mb-4 relative z-10">
-                                <div>
-                                    <h4 className="text-brand-muted text-sm font-medium mb-1.5">Total Verified Payouts</h4>
-                                    <div className="text-3xl sm:text-4xl font-medium text-white tracking-tight leading-none drop-shadow-lg">
-                                        $84,493.37
-                                    </div>
-                                    <div className="text-primary text-sm font-medium mt-3 flex items-center bg-primary/10 px-2.5 py-1 rounded-md w-max border border-primary/20">
-                                        <TrendingUp className="w-3.5 h-3.5 mr-1.5" /> 14.3% (30d)
-                                    </div>
+                        {/* Top Small Card - Live Pricing */}
+                        <TiltCard className="h-full w-full">
+                            <div className="p-6 sm:p-8 h-full flex flex-col justify-center">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h4 className="text-white font-medium flex items-center drop-shadow-md whitespace-nowrap">
+                                        <Clock className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Live Rates
+                                    </h4>
+                                    <span className="text-[#eee] text-[10px] sm:text-xs px-2 py-1 rounded bg-white/10 backdrop-blur-sm border border-white/10 whitespace-nowrap">Updated Just Now</span>
                                 </div>
-                                <div className="px-3 py-1.5 rounded-lg border border-white/10 text-brand-muted text-xs flex items-center bg-black/40 shadow-inner">
-                                    Last 28 days
-                                    <div className="w-2 h-2 ml-2 bg-brand-gold rounded-full animate-pulse shadow-[0_0_8px_rgba(var(--brand-gold),0.8)]"></div>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between bg-black/20 p-3 sm:p-4 rounded-xl border border-white/5 hover:border-white/20 transition-colors w-full">
+                                        <div className="flex flex-col min-w-0 mr-2">
+                                            <span className="text-white font-medium truncate">FTMO 100k</span>
+                                            <span className="text-brand-muted text-[10px] sm:text-xs truncate">Standard Challenge</span>
+                                        </div>
+                                        <div className="text-right flex flex-col items-end flex-shrink-0">
+                                            <span className="text-white font-semibold">$540.00</span>
+                                            <span className="text-primary text-[10px] font-bold mt-0.5 whitespace-nowrap">+ Popular</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between bg-black/20 p-3 sm:p-4 rounded-xl border border-white/5 hover:border-white/20 transition-colors w-full">
+                                        <div className="flex flex-col min-w-0 mr-2">
+                                            <span className="text-white font-medium truncate">FundedNext 100k</span>
+                                            <span className="text-brand-muted text-[10px] sm:text-xs truncate">Stellar 1-Step</span>
+                                        </div>
+                                        <div className="text-right flex flex-col items-end flex-shrink-0">
+                                            <span className="text-white font-semibold">$519.00</span>
+                                            <span className="text-brand-gold text-[10px] font-bold mt-0.5 whitespace-nowrap">Most Funded</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        </TiltCard>
 
-                            {/* SVG Chart mimicking the reference */}
-                            <div className="w-[110%] h-[140px] relative mt-auto top-6 -ml-4 -mr-4 shrink-0 pointer-events-none">
-                                {/* Horizontal Grid Lines */}
-                                <div className="absolute bottom-1/4 w-full border-b border-white/5 border-dashed"></div>
-                                <div className="absolute bottom-2/4 w-full border-b border-white/5 border-dashed"></div>
+                        {/* Bottom Small Card - Trust Metrics */}
+                        <TiltCard className="h-full w-full">
+                            <div className="p-6 sm:p-8 h-full flex flex-col justify-center relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl opacity-50 rounded-full mix-blend-screen pointer-events-none" />
 
-                                {/* Y-Axis Labels */}
-                                <div className="absolute inset-0 pl-6 w-full h-full z-0">
-                                    <div className="absolute left-6 bottom-[22%] text-[10px] font-medium text-brand-muted/50">60k</div>
-                                    <div className="absolute left-6 bottom-[47%] text-[10px] font-medium text-brand-muted/50">80k</div>
+                                <ShieldCheck className="w-8 h-8 text-white mb-4 drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+                                <h4 className="text-white text-lg sm:text-xl font-semibold mb-2 drop-shadow-md">Verified Trust Score</h4>
+                                <p className="text-brand-muted text-xs sm:text-sm leading-relaxed mb-6">
+                                    Our proprietary algorithm analyzes hundreds of data points to ensure you only trade with reliable originators.
+                                </p>
 
-                                    <svg className="w-full h-full absolute inset-0 preserve-3d overflow-visible" viewBox="0 0 400 120" preserveAspectRatio="none">
-                                        <defs>
-                                            <linearGradient id="chart-gradient-glass" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stopColor="rgba(var(--primary), 0.3)" />
-                                                <stop offset="100%" stopColor="rgba(var(--primary), 0)" />
-                                            </linearGradient>
-                                            <linearGradient id="line-gradient-glass" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stopColor="rgba(var(--primary), 0.5)" />
-                                                <stop offset="50%" stopColor="rgba(var(--primary), 1)" />
-                                                <stop offset="100%" stopColor="rgba(var(--brand-gold), 1)" />
-                                            </linearGradient>
-                                            <filter id="glow-glass" x="-20%" y="-20%" width="140%" height="140%">
-                                                <feGaussianBlur stdDeviation="6" result="blur" />
-                                                <feMerge>
-                                                    <feMergeNode in="blur" />
-                                                    <feMergeNode in="SourceGraphic" />
-                                                </feMerge>
-                                            </filter>
-                                        </defs>
-
-                                        {/* Area Fill */}
-                                        <path
-                                            d="M0,120 L0,90 C40,90 60,60 80,85 C100,110 140,40 160,70 C180,100 200,20 220,10 C240,0 260,70 280,60 C300,50 320,100 340,90 C360,80 380,110 400,105 L400,120 Z"
-                                            fill="url(#chart-gradient-glass)"
-                                        />
-
-                                        {/* Neon Line */}
-                                        <path
-                                            d="M0,90 C40,90 60,60 80,85 C100,110 140,40 160,70 C180,100 200,20 220,10 C240,0 260,70 280,60 C300,50 320,100 340,90 C360,80 380,110 400,105"
-                                            fill="none"
-                                            stroke="url(#line-gradient-glass)"
-                                            strokeWidth="3"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            filter="url(#glow-glass)"
-                                            className="group-hover:stroke-brand-gold transition-colors duration-1000"
-                                        />
-
-                                        {/* High Point Marker */}
-                                        <g transform="translate(220, 10)">
-                                            <circle cx="0" cy="0" r="4" fill="#fff" className="shadow-lg" />
-                                            <circle cx="0" cy="0" r="12" fill="none" stroke="rgba(var(--primary), 1)" strokeWidth="2" strokeOpacity="0.8" className="animate-ping" />
-                                            <text x="0" y="-16" fill="#fff" fontSize="12" textAnchor="middle" fontWeight="bold" className="drop-shadow-lg">$84,493</text>
-                                        </g>
-                                    </svg>
+                                {/* Faux Progress Bar */}
+                                <div className="w-full bg-black/40 rounded-full h-2.5 border border-white/10 overflow-hidden relative">
+                                    <div className="bg-gradient-to-r from-primary to-brand-gold h-2.5 rounded-full" style={{ width: '92%' }}></div>
+                                    {/* Shining effect on bar */}
+                                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                                </div>
+                                <div className="flex justify-between mt-2">
+                                    <span className="text-[10px] sm:text-xs text-brand-muted">Industry Avg 64%</span>
+                                    <span className="text-[10px] sm:text-xs text-brand-gold font-bold">Capital Match 92%</span>
                                 </div>
                             </div>
-                        </div>
+                        </TiltCard>
 
-                        {/* Explanatory Text */}
-                        <div className="mt-6 px-4">
-                            <p className="text-brand-muted text-sm leading-relaxed">
-                                <span className="text-white font-medium drop-shadow-md">Advanced Tools.</span> Leverage our proprietary analytics to enhance your prop firm setup.
-                            </p>
-                        </div>
                     </div>
-
                 </div>
             </div>
+
+            <style>{`
+                @keyframes shimmer {
+                    100% { transform: translateX(100%); }
+                }
+            `}</style>
         </section>
     );
 };
