@@ -6,53 +6,60 @@ import * as THREE from 'three';
 const SegmentedC = () => {
     const groupRef = useRef<THREE.Group>(null);
 
-    // Rotating slightly over time
     useFrame((state, delta) => {
         if (groupRef.current) {
-            // Slowly rotating on its own
-            groupRef.current.rotation.y += delta * 0.25;
-            // Add a very subtle bobbing
-            groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 1.5) * 0.1 - 0.2;
+            // Very slow, elegant auto-rotation
+            groupRef.current.rotation.y += delta * 0.15;
+            // Gentle hovering bob
+            groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 1.5) * 0.1;
         }
     });
 
+    // Make the logo significantly thicker (Z-axis = 1.2) so it looks dense and premium from all angles
+    const thickness = 1.2;
+
     return (
-        <group ref={groupRef} position={[0, -0.2, 0]} scale={1.8}>
-            {/* Top Segment - Green Glassy/Glowing */}
-            <RoundedBox args={[1.4, 0.5, 0.5]} radius={0.12} position={[0.25, 0.9, 0]}>
-                <meshStandardMaterial
+        <group ref={groupRef} position={[0, -0.1, 0]} scale={0.9}>
+            {/* Top Arc Segment - Glowing Mint Glass */}
+            <RoundedBox args={[1.6, 0.5, thickness]} radius={0.15} position={[0.2, 1.0, 0]}>
+                <meshPhysicalMaterial
                     color="#10b981"
                     emissive="#047857"
-                    emissiveIntensity={0.8}
+                    emissiveIntensity={0.5}
                     roughness={0.1}
-                    metalness={0.8}
+                    metalness={0.5}
+                    transmission={0.4}
+                    thickness={0.5}
+                    clearcoat={1.0}
+                    clearcoatRoughness={0.1}
                 />
             </RoundedBox>
 
-            {/* Top Left small connector chunk - Green */}
-            <RoundedBox args={[0.5, 0.5, 0.5]} radius={0.1} position={[-0.2, 0.9, 0]}>
-                <meshStandardMaterial
+            {/* Top Left Connector - Bright Cyan/Mint */}
+            <RoundedBox args={[0.5, 0.5, thickness]} radius={0.12} position={[-0.35, 1.0, 0]}>
+                <meshPhysicalMaterial
                     color="#34d399"
                     emissive="#10b981"
-                    emissiveIntensity={1.0}
-                    roughness={0.1}
-                    metalness={0.6}
+                    emissiveIntensity={0.8}
+                    roughness={0.05}
+                    metalness={0.2}
+                    clearcoat={1.0}
                 />
             </RoundedBox>
 
-            {/* Left Segment - Grey Metallic */}
-            <RoundedBox args={[0.5, 1.4, 0.5]} radius={0.12} position={[-0.2, 0, 0]}>
+            {/* Main Left Pillar - Premium Titanium/Grey */}
+            <RoundedBox args={[0.5, 1.6, thickness]} radius={0.15} position={[-0.35, 0, 0]}>
                 <meshStandardMaterial
-                    color="#4b5563"
-                    roughness={0.4}
+                    color="#374151"
+                    roughness={0.2}
                     metalness={0.8}
                 />
             </RoundedBox>
 
-            {/* Bottom Segment - Dark Metallic */}
-            <RoundedBox args={[1.4, 0.5, 0.5]} radius={0.12} position={[0.25, -0.9, 0]}>
+            {/* Bottom Arc Segment - Deep Dark Metal */}
+            <RoundedBox args={[1.6, 0.5, thickness]} radius={0.15} position={[0.2, -1.0, 0]}>
                 <meshStandardMaterial
-                    color="#1f2937"
+                    color="#111827"
                     roughness={0.3}
                     metalness={0.9}
                 />
@@ -64,19 +71,18 @@ const SegmentedC = () => {
 export const ThreeDLogoWidget = () => {
     return (
         <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
-            {/* Setting precise transparent styling to ensure no white flash */}
             <Canvas
-                camera={{ position: [0, 0, 5], fov: 55 }}
-                gl={{ alpha: true, antialias: true }}
+                camera={{ position: [0, 0, 6], fov: 45 }}
+                gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
                 style={{ background: 'transparent' }}
             >
-                {/* Clean, high-performance lighting setup */}
-                <ambientLight intensity={1.5} color="#ffffff" />
-                <directionalLight position={[5, 10, 5]} intensity={2.5} color="#ffffff" />
-                <directionalLight position={[-5, -5, -5]} intensity={1.0} color="#10b981" />
-                <pointLight position={[0, 0, 5]} intensity={1.5} color="#34d399" />
+                <ambientLight intensity={2.0} color="#ffffff" />
+                <directionalLight position={[10, 10, 10]} intensity={3.5} color="#ffffff" />
+                <directionalLight position={[-10, 5, -10]} intensity={2.0} color="#10b981" />
+                <pointLight position={[0, -5, 5]} intensity={1.5} color="#00e6a0" />
+                <pointLight position={[3, 3, 5]} intensity={2.5} color="#ffffff" distance={10} />
 
-                <Float speed={2.0} rotationIntensity={0.5} floatIntensity={1.0}>
+                <Float speed={2.5} rotationIntensity={0.2} floatIntensity={0.5}>
                     <SegmentedC />
                 </Float>
 
@@ -84,9 +90,12 @@ export const ThreeDLogoWidget = () => {
                     enableZoom={false}
                     enablePan={false}
                     autoRotate={true}
-                    autoRotateSpeed={1.5}
-                    minPolarAngle={Math.PI / 3}
-                    maxPolarAngle={Math.PI / 1.5}
+                    autoRotateSpeed={0.8}
+                    // Constrain angles to prevent looking at it purely from top or side
+                    minPolarAngle={Math.PI / 2.5}
+                    maxPolarAngle={Math.PI / 1.8}
+                    minAzimuthAngle={-Math.PI / 4}
+                    maxAzimuthAngle={Math.PI / 4}
                 />
             </Canvas>
         </div>

@@ -117,7 +117,7 @@ export const DataDashboardPreview: React.FC = () => {
                             {/* The Real 3D Canvas (pointer events enabled here!) */}
                             <div className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing flex items-center justify-center pt-8">
                                 <Suspense fallback={<div className="text-primary animate-pulse">Loading Core Engine...</div>}>
-                                    <div className="w-full h-full scale-125 md:scale-150">
+                                    <div className="w-full h-full">
                                         <ThreeDLogoWidget />
                                     </div>
                                 </Suspense>
@@ -141,8 +141,8 @@ export const DataDashboardPreview: React.FC = () => {
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between bg-[#111] p-4 rounded-2xl border border-white/5 group-hover/card:border-white/10 transition-colors">
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 bg-black rounded-lg border border-white/10 p-1 flex items-center justify-center">
-                                                <img src="https://thecapitalmatch.com/wp-content/uploads/2024/11/ftmo-logo.png" alt="FTMO" className="w-full h-full object-contain filter brightness-200" />
+                                            <div className="w-10 h-10 bg-black/60 rounded-lg border border-white/10 flex items-center justify-center font-bold text-white text-xs tracking-wider shadow-inner">
+                                                FT
                                             </div>
                                             <div>
                                                 <div className="text-white font-medium text-sm">FTMO 100k</div>
@@ -157,8 +157,8 @@ export const DataDashboardPreview: React.FC = () => {
 
                                     <div className="flex items-center justify-between bg-[#111] p-4 rounded-2xl border border-white/5 group-hover/card:border-white/10 transition-colors">
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 bg-black rounded-lg border border-white/10 p-1 flex items-center justify-center">
-                                                <img src="https://thecapitalmatch.com/wp-content/uploads/2024/11/FundedNext-Logo.png" alt="FundedNext" className="w-full h-full object-contain filter brightness-200" />
+                                            <div className="w-10 h-10 bg-black/60 rounded-lg border border-white/10 flex items-center justify-center font-bold text-white text-xs tracking-wider shadow-inner">
+                                                FN
                                             </div>
                                             <div>
                                                 <div className="text-white font-medium text-sm">FundedNext 100k</div>
