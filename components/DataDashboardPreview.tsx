@@ -139,10 +139,10 @@ export const DataDashboardPreview: React.FC = () => {
 
     return (
         <section className="relative py-28 sm:py-36 bg-[#020202] overflow-hidden font-sans border-t border-white/5 z-10 w-full">
-            {/* Background Glow Effects */}
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-primary/[0.07] blur-[180px] pointer-events-none rounded-full" />
-            <div className="absolute bottom-0 right-1/4 w-[800px] h-[500px] bg-blue-500/[0.04] blur-[150px] pointer-events-none rounded-full" />
-            <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-brand-gold/[0.03] blur-[120px] pointer-events-none rounded-full" />
+            {/* Background Glow Effects - Richer Palette */}
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-primary/[0.09] blur-[180px] pointer-events-none rounded-full" />
+            <div className="absolute bottom-0 right-1/4 w-[800px] h-[500px] bg-indigo-500/[0.06] blur-[160px] pointer-events-none rounded-full" />
+            <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-brand-gold/[0.06] blur-[140px] pointer-events-none rounded-full" />
 
             <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
 
@@ -153,13 +153,13 @@ export const DataDashboardPreview: React.FC = () => {
                         <span className="text-white/60 text-[11px] font-bold tracking-[0.2em] uppercase">The Ecosystem</span>
                     </div>
 
-                    <h2 className="text-4xl sm:text-5xl md:text-[58px] font-semibold text-white mb-7 tracking-[-0.02em] leading-[1.08]">
+                    <h2 className="text-4xl sm:text-5xl md:text-[64px] font-bold text-white mb-7 tracking-[-0.02em] leading-[1.08]">
                         Discover the Best Prop Firms<br />
-                        <span className="bg-gradient-to-r from-white/50 to-white/30 bg-clip-text text-transparent">With Infinite Clarity</span>
+                        <span className="bg-gradient-to-r from-primary via-emerald-400 to-brand-gold bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(16,185,129,0.2)]">With Infinite Clarity</span>
                     </h2>
 
-                    <p className="text-[16px] sm:text-[17px] text-white/40 font-normal max-w-xl leading-[1.7]">
-                        An interconnected dashboard that centralizes real-time metrics, payouts, and trusted analytics — straight to your screen.
+                    <p className="text-[16px] sm:text-[18px] text-white/50 font-medium max-w-2xl leading-[1.7]">
+                        Stop guessing. We've built an interconnected ecosystem that centralizes real-time metrics, verifies payouts, and ranks trusted firms—straight to your screen.
                     </p>
                 </div>
 
@@ -453,38 +453,38 @@ export const DataDashboardPreview: React.FC = () => {
                                 {/* Metrics Grid */}
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-grow relative z-10">
                                     {/* Reliability */}
-                                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.04] transition-all">
-                                        <div className="text-white/30 text-[10px] font-bold uppercase tracking-[0.15em] mb-3">Reliability</div>
+                                    <div className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.05] hover:border-white/10 transition-all group/metric">
+                                        <div className="text-primary/70 text-[10px] font-bold uppercase tracking-[0.15em] mb-3 group-hover/metric:text-primary transition-colors">Reliability</div>
                                         <div className="flex items-end justify-between mb-3">
                                             <span className="text-white text-3xl font-bold">98.5%</span>
                                             <Sparkline data={[95, 96, 97, 96, 98, 97, 98, 98, 99, 98]} color="#10b981" />
                                         </div>
                                         <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
-                                            <div className="bg-gradient-to-r from-primary to-emerald-400 h-full rounded-full w-[98.5%] shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                                            <div className="bg-gradient-to-r from-primary to-emerald-300 h-full rounded-full w-[98.5%] shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
                                         </div>
                                     </div>
 
                                     {/* Payout Speed */}
-                                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.04] transition-all">
-                                        <div className="text-white/30 text-[10px] font-bold uppercase tracking-[0.15em] mb-3">Avg. Payout Time</div>
+                                    <div className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.05] hover:border-white/10 transition-all group/metric">
+                                        <div className="text-indigo-400/70 text-[10px] font-bold uppercase tracking-[0.15em] mb-3 group-hover/metric:text-indigo-400 transition-colors">Avg. Payout Time</div>
                                         <div className="flex items-end justify-between mb-3">
                                             <span className="text-white text-3xl font-bold">1.2<span className="text-lg text-white/40 ml-1">days</span></span>
-                                            <Sparkline data={[3, 2.5, 2, 1.8, 1.5, 1.3, 1.2, 1.2, 1.1, 1.2]} color="#3b82f6" />
+                                            <Sparkline data={[3, 2.5, 2, 1.8, 1.5, 1.3, 1.2, 1.2, 1.1, 1.2]} color="#818cf8" />
                                         </div>
                                         <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
-                                            <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-full rounded-full w-[92%] shadow-[0_0_12px_rgba(59,130,246,0.5)]" />
+                                            <div className="bg-gradient-to-r from-indigo-500 to-violet-400 h-full rounded-full w-[92%] shadow-[0_0_12px_rgba(99,102,241,0.6)]" />
                                         </div>
                                     </div>
 
                                     {/* User Satisfaction */}
-                                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.04] transition-all">
-                                        <div className="text-white/30 text-[10px] font-bold uppercase tracking-[0.15em] mb-3">User Satisfaction</div>
+                                    <div className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.05] hover:border-white/10 transition-all group/metric">
+                                        <div className="text-brand-gold/70 text-[10px] font-bold uppercase tracking-[0.15em] mb-3 group-hover/metric:text-brand-gold transition-colors">User Satisfaction</div>
                                         <div className="flex items-end justify-between mb-3">
                                             <span className="text-white text-3xl font-bold">4.9<span className="text-lg text-white/40 ml-1">/5.0</span></span>
-                                            <Sparkline data={[4.5, 4.6, 4.7, 4.7, 4.8, 4.8, 4.9, 4.9, 4.9, 4.9]} color="#f59e0b" />
+                                            <Sparkline data={[4.5, 4.6, 4.7, 4.7, 4.8, 4.8, 4.9, 4.9, 4.9, 4.9]} color="#fbbf24" />
                                         </div>
                                         <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
-                                            <div className="bg-gradient-to-r from-brand-gold to-yellow-400 h-full rounded-full w-[98%] shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
+                                            <div className="bg-gradient-to-r from-brand-gold to-amber-300 h-full rounded-full w-[98%] shadow-[0_0_12px_rgba(245,158,11,0.6)]" />
                                         </div>
                                     </div>
                                 </div>
