@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ShieldCheck, Clock, Layers, Cpu, Zap, TrendingUp, Users, DollarSign, ArrowUpRight, BarChart3, CheckCircle2, Globe, Award, Target } from 'lucide-react';
+import logoFtmo from '../assets/hero-logos/firm-ftmo.png';
+import logoFundedNext from '../assets/hero-logos/firm-fundednext.png';
+import logo5ers from '../assets/hero-logos/firm-5ers.png';
+import { MOCK_FIRMS } from '../constants';
 
 /* ─── Animated Counters Hook (single shared ref) ─── */
 const useCounters = (targets: { key: string; target: number; duration?: number }[]) => {
@@ -128,9 +132,9 @@ const StatPill = ({ icon: Icon, label, value, change, color = 'text-primary' }: 
 export const DataDashboardPreview: React.FC = () => {
     const { counts, ref: statsRef } = useCounters([
         { key: 'traders', target: 28500, duration: 2200 },
-        { key: 'payouts', target: 2400, duration: 2500 },
-        { key: 'firms', target: 147, duration: 1800 },
-        { key: 'saved', target: 847, duration: 2000 },
+        { key: 'payouts', target: 342, duration: 2500 },
+        { key: 'firms', target: MOCK_FIRMS.length, duration: 1800 },
+        { key: 'saved', target: 42, duration: 2000 },
     ]);
 
     return (
@@ -334,8 +338,8 @@ export const DataDashboardPreview: React.FC = () => {
 
                                 {/* Key Stats Grid */}
                                 <div className="space-y-3 flex-grow relative z-10">
-                                    <StatPill icon={DollarSign} label="Payouts Tracked" value={`$${(counts.payouts / 1000).toFixed(1)}B+`} change="+22%" color="text-emerald-400" />
-                                    <StatPill icon={ShieldCheck} label="Prop Firms Verified" value={`${counts.firms}+`} change="+12" color="text-blue-400" />
+                                    <StatPill icon={DollarSign} label="Payouts Tracked" value={`$${counts.payouts}M+`} change="+22%" color="text-emerald-400" />
+                                    <StatPill icon={ShieldCheck} label="Prop Firms Verified" value={`${counts.firms}`} change="+2" color="text-blue-400" />
                                     <StatPill icon={Award} label="Saved by Traders" value={`$${counts.saved}M+`} change="+31%" color="text-brand-gold" />
                                 </div>
                             </div>
@@ -361,8 +365,8 @@ export const DataDashboardPreview: React.FC = () => {
                                     {/* FTMO */}
                                     <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
                                         <div className="flex items-center space-x-4">
-                                            <div className="w-11 h-11 bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-center font-black text-white text-[14px] tracking-wider group-hover/item:scale-110 transition-transform">
-                                                FT
+                                            <div className="w-11 h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-2 group-hover/item:border-white/[0.15] transition-colors">
+                                                <img src={logoFtmo} alt="FTMO" className="w-full h-full object-contain opacity-90 group-hover/item:opacity-100 transition-opacity" />
                                             </div>
                                             <div>
                                                 <div className="text-white font-bold text-[14px]">FTMO</div>
@@ -382,8 +386,8 @@ export const DataDashboardPreview: React.FC = () => {
                                     <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default relative overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-gold/[0.03] to-transparent pointer-events-none" />
                                         <div className="flex items-center space-x-4 relative z-10">
-                                            <div className="w-11 h-11 bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-center font-black text-white text-[14px] tracking-wider group-hover/item:scale-110 transition-transform">
-                                                FN
+                                            <div className="w-11 h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-1.5 group-hover/item:border-white/[0.15] transition-colors">
+                                                <img src={logoFundedNext} alt="FundedNext" className="w-full h-full object-contain opacity-90 group-hover/item:opacity-100 transition-opacity drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]" />
                                             </div>
                                             <div>
                                                 <div className="text-white font-bold text-[14px]">FundedNext</div>
@@ -402,8 +406,8 @@ export const DataDashboardPreview: React.FC = () => {
                                     {/* The5ers */}
                                     <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
                                         <div className="flex items-center space-x-4">
-                                            <div className="w-11 h-11 bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-center font-black text-white text-[14px] tracking-wider group-hover/item:scale-110 transition-transform">
-                                                T5
+                                            <div className="w-11 h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-2 group-hover/item:border-white/[0.15] transition-colors">
+                                                <img src={logo5ers} alt="The5%ers" className="w-full h-full object-contain opacity-90 group-hover/item:opacity-100 transition-opacity drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]" />
                                             </div>
                                             <div>
                                                 <div className="text-white font-bold text-[14px]">The5%ers</div>
