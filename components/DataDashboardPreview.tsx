@@ -1,16 +1,18 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ShieldCheck, Clock, Layers, Cpu, Zap, TrendingUp, Users, DollarSign, ArrowUpRight, BarChart3, CheckCircle2, Globe } from 'lucide-react';
+import { ShieldCheck, Clock, Layers, Cpu, Zap, TrendingUp, Users, DollarSign, ArrowUpRight, BarChart3, CheckCircle2, Globe, Award, Target } from 'lucide-react';
 
-/* ─── Animated Counter Hook ─── */
-const useCounter = (target: number, duration = 2000) => {
-    const [count, setCount] = useState(0);
-    const [hasStarted, setHasStarted] = useState(false);
+/* ─── Animated Counters Hook (single shared ref) ─── */
+const useCounters = (targets: { key: string; target: number; duration?: number }[]) => {
     const ref = useRef<HTMLDivElement>(null);
+    const [hasStarted, setHasStarted] = useState(false);
+    const [counts, setCounts] = useState<Record<string, number>>(
+        Object.fromEntries(targets.map(t => [t.key, 0]))
+    );
 
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => { if (entry.isIntersecting && !hasStarted) setHasStarted(true); },
-            { threshold: 0.3 }
+            { threshold: 0.2 }
         );
         if (ref.current) observer.observe(ref.current);
         return () => observer.disconnect();
@@ -18,17 +20,25 @@ const useCounter = (target: number, duration = 2000) => {
 
     useEffect(() => {
         if (!hasStarted) return;
-        let start = 0;
-        const increment = target / (duration / 16);
-        const timer = setInterval(() => {
-            start += increment;
-            if (start >= target) { setCount(target); clearInterval(timer); }
-            else setCount(Math.floor(start));
-        }, 16);
-        return () => clearInterval(timer);
-    }, [hasStarted, target, duration]);
+        const timers: NodeJS.Timer[] = [];
+        targets.forEach(({ key, target, duration = 2000 }) => {
+            let current = 0;
+            const increment = target / (duration / 16);
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    setCounts(prev => ({ ...prev, [key]: target }));
+                    clearInterval(timer);
+                } else {
+                    setCounts(prev => ({ ...prev, [key]: Math.floor(current) }));
+                }
+            }, 16);
+            timers.push(timer);
+        });
+        return () => timers.forEach(t => clearInterval(t));
+    }, [hasStarted]);
 
-    return { count, ref };
+    return { counts, ref };
 };
 
 /* ─── Sparkline Mini Chart ─── */
@@ -116,9 +126,12 @@ const StatPill = ({ icon: Icon, label, value, change, color = 'text-primary' }: 
 
 /* ─── Main Section ─── */
 export const DataDashboardPreview: React.FC = () => {
-    const counter1 = useCounter(12847);
-    const counter2 = useCounter(284);
-    const counter3 = useCounter(97);
+    const { counts, ref: statsRef } = useCounters([
+        { key: 'traders', target: 28500, duration: 2200 },
+        { key: 'payouts', target: 2400, duration: 2500 },
+        { key: 'firms', target: 147, duration: 1800 },
+        { key: 'saved', target: 847, duration: 2000 },
+    ]);
 
     return (
         <section className="relative py-28 sm:py-36 bg-[#020202] overflow-hidden font-sans border-t border-white/5 z-10 w-full">
@@ -294,33 +307,36 @@ export const DataDashboardPreview: React.FC = () => {
                     </div>
 
                     {/* ━━━ Card 2: Live Stats (Spans 5 cols on first row) ━━━ */}
-                    <div className="lg:col-span-5 min-h-[420px]" ref={counter1.ref}>
+                    <div className="lg:col-span-5 min-h-[480px]" ref={statsRef}>
                         <TiltCard className="h-full" spotlightColor="rgba(59, 130, 246, 0.08)">
                             <div className="p-7 sm:p-9 flex flex-col h-full relative">
                                 <div className="absolute -right-16 -top-16 w-52 h-52 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
+                                <div className="absolute left-0 bottom-0 w-40 h-40 bg-primary/5 blur-[60px] rounded-full pointer-events-none" />
 
-                                <div className="flex items-center justify-between mb-8 relative z-10">
+                                <div className="flex items-center justify-between mb-6 relative z-10">
                                     <h4 className="text-white text-xl font-bold flex items-center tracking-tight">
-                                        <Globe className="w-5 h-5 mr-3 text-blue-400" /> Platform Overview
+                                        <Globe className="w-5 h-5 mr-3 text-blue-400" /> Capital Match in Numbers
                                     </h4>
                                     <div className="flex items-center space-x-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider border border-emerald-500/20">
-                                        <ArrowUpRight className="w-3 h-3" /> +24%
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
                                     </div>
                                 </div>
 
-                                {/* Big Stat Number */}
-                                <div className="mb-8 relative z-10">
-                                    <div className="text-white/30 text-[11px] font-bold uppercase tracking-[0.2em] mb-2">Active Traders This Month</div>
+                                {/* Hero Stat: Active Comparisons */}
+                                <div className="mb-6 relative z-10">
+                                    <div className="text-white/30 text-[11px] font-bold uppercase tracking-[0.2em] mb-2">Firm Comparisons This Month</div>
                                     <div className="flex items-end space-x-3">
-                                        <span className="text-white text-5xl font-bold tracking-tight leading-none">{counter1.count.toLocaleString()}</span>
-                                        <Sparkline data={[20, 35, 28, 45, 38, 55, 48, 62, 58, 72, 65, 80]} color="#3b82f6" className="mb-1.5" />
+                                        <span className="text-white text-5xl font-bold tracking-tight leading-none">{counts.traders.toLocaleString()}</span>
+                                        <span className="text-primary text-sm font-bold mb-1.5">+34%</span>
+                                        <Sparkline data={[15, 22, 28, 35, 32, 45, 42, 55, 52, 68, 75, 88]} color="#3b82f6" className="mb-1.5" />
                                     </div>
                                 </div>
 
-                                {/* Stats grid */}
+                                {/* Key Stats Grid */}
                                 <div className="space-y-3 flex-grow relative z-10">
-                                    <StatPill icon={DollarSign} label="Total Paid Out" value={`$${counter2.count}M+`} change="+18%" color="text-emerald-400" />
-                                    <StatPill icon={ShieldCheck} label="Firms Verified" value={`${counter3.count}+`} change="+6" color="text-blue-400" />
+                                    <StatPill icon={DollarSign} label="Payouts Tracked" value={`$${(counts.payouts / 1000).toFixed(1)}B+`} change="+22%" color="text-emerald-400" />
+                                    <StatPill icon={ShieldCheck} label="Prop Firms Verified" value={`${counts.firms}+`} change="+12" color="text-blue-400" />
+                                    <StatPill icon={Award} label="Saved by Traders" value={`$${counts.saved}M+`} change="+31%" color="text-brand-gold" />
                                 </div>
                             </div>
                         </TiltCard>
