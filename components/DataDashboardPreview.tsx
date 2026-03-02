@@ -1,8 +1,59 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Activity, ShieldCheck, Clock, Layers, Cpu, Zap, ArrowRight, BarChart3, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Clock, Layers, Cpu, Zap, TrendingUp, Users, DollarSign, ArrowUpRight, BarChart3, CheckCircle2, Globe } from 'lucide-react';
 
-// Custom Interactive Glass Card Component
-const TiltCard = ({ children, className = "", spotlightColor = "rgba(16, 185, 129, 0.15)" }: { children: React.ReactNode, className?: string, spotlightColor?: string }) => {
+/* ─── Animated Counter Hook ─── */
+const useCounter = (target: number, duration = 2000) => {
+    const [count, setCount] = useState(0);
+    const [hasStarted, setHasStarted] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => { if (entry.isIntersecting && !hasStarted) setHasStarted(true); },
+            { threshold: 0.3 }
+        );
+        if (ref.current) observer.observe(ref.current);
+        return () => observer.disconnect();
+    }, [hasStarted]);
+
+    useEffect(() => {
+        if (!hasStarted) return;
+        let start = 0;
+        const increment = target / (duration / 16);
+        const timer = setInterval(() => {
+            start += increment;
+            if (start >= target) { setCount(target); clearInterval(timer); }
+            else setCount(Math.floor(start));
+        }, 16);
+        return () => clearInterval(timer);
+    }, [hasStarted, target, duration]);
+
+    return { count, ref };
+};
+
+/* ─── Sparkline Mini Chart ─── */
+const Sparkline = ({ data, color = '#10b981', className = '' }: { data: number[], color?: string, className?: string }) => {
+    const max = Math.max(...data);
+    const min = Math.min(...data);
+    const range = max - min || 1;
+    const w = 120; const h = 40;
+    const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
+    return (
+        <svg width={w} height={h} className={className} viewBox={`0 0 ${w} ${h}`}>
+            <defs>
+                <linearGradient id={`spark-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+                    <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </linearGradient>
+            </defs>
+            <polygon points={`0,${h} ${points} ${w},${h}`} fill={`url(#spark-${color.replace('#', '')})`} />
+            <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+};
+
+/* ─── Interactive Glass TiltCard ─── */
+const TiltCard = ({ children, className = '', spotlightColor = 'rgba(16, 185, 129, 0.12)' }: { children: React.ReactNode, className?: string, spotlightColor?: string }) => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [rotation, setRotation] = useState({ x: 0, y: 0 });
     const [isHovering, setIsHovering] = useState(false);
@@ -13,284 +64,378 @@ const TiltCard = ({ children, className = "", spotlightColor = "rgba(16, 185, 12
         const rect = cardRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-
-        const rotateX = ((y - centerY) / centerY) * -4;
-        const rotateY = ((x - centerX) / centerX) * 4;
-
-        setRotation({ x: rotateX, y: rotateY });
+        setRotation({ x: ((y - rect.height / 2) / (rect.height / 2)) * -3, y: ((x - rect.width / 2) / (rect.width / 2)) * 3 });
         setMousePos({ x, y });
-    };
-
-    const handleMouseEnter = () => setIsHovering(true);
-
-    const handleMouseLeave = () => {
-        setIsHovering(false);
-        setRotation({ x: 0, y: 0 });
     };
 
     return (
         <div
             ref={cardRef}
             onMouseMove={handleMouseMove}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => { setIsHovering(false); setRotation({ x: 0, y: 0 }); }}
             style={{
-                transform: `perspective(1200px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale3d(${isHovering ? 1.01 : 1}, ${isHovering ? 1.01 : 1}, ${isHovering ? 1.01 : 1})`,
-                transition: isHovering ? 'transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                transform: `perspective(1200px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovering ? 1.015 : 1})`,
+                transition: isHovering ? 'transform 0.1s ease-out' : 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 transformStyle: 'preserve-3d',
             }}
             className={`relative group ${className}`}
         >
-            {/* Soft Ambient Glow */}
-            <div
-                className={`absolute -inset-[1px] bg-gradient-to-br from-primary/30 via-transparent to-brand-gold/20 rounded-[28px] blur-xl opacity-0 transition-opacity duration-700 ${isHovering ? 'opacity-100' : ''}`}
-                style={{ transform: 'translateZ(-1px)' }}
-            />
+            {/* Ambient border glow */}
+            <div className={`absolute -inset-px bg-gradient-to-br from-primary/40 via-transparent to-brand-gold/20 rounded-3xl blur-lg opacity-0 transition-opacity duration-500 ${isHovering ? 'opacity-100' : ''}`} />
 
-            {/* Main Card Body */}
-            <div
-                className="relative h-full w-full bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 rounded-[28px] overflow-hidden shadow-2xl flex flex-col"
-                style={{ transformStyle: 'preserve-3d' }}
-            >
-                {/* Dynamic Spotlight */}
-                <div
-                    className="absolute inset-0 z-0 transition-opacity duration-300 pointer-events-none mix-blend-screen"
-                    style={{
-                        opacity: isHovering ? 1 : 0,
-                        background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, ${spotlightColor}, transparent 40%)`
-                    }}
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none z-0" />
-
-                <div style={{ transform: 'translateZ(30px)' }} className="h-full flex flex-col relative z-10 w-full">
-                    {children}
-                </div>
+            {/* Glass body */}
+            <div className="relative h-full w-full bg-[#080808]/95 backdrop-blur-2xl border border-white/[0.08] rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                {/* Cursor spotlight */}
+                <div className="absolute inset-0 transition-opacity duration-300 pointer-events-none" style={{ opacity: isHovering ? 1 : 0, background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, ${spotlightColor}, transparent 40%)` }} />
+                {/* Subtle top-left sheen */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
+                <div style={{ transform: 'translateZ(25px)' }} className="h-full flex flex-col relative z-10">{children}</div>
             </div>
         </div>
     );
 };
 
+/* ─── Stat Pill Component ─── */
+const StatPill = ({ icon: Icon, label, value, change, color = 'text-primary' }: { icon: any, label: string, value: string, change: string, color?: string }) => (
+    <div className="flex items-center justify-between bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 cursor-default group/stat">
+        <div className="flex items-center space-x-3">
+            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/[0.08] flex items-center justify-center group-hover/stat:scale-110 transition-transform`}>
+                <Icon className={`w-5 h-5 ${color}`} />
+            </div>
+            <div>
+                <div className="text-white/50 text-[11px] font-medium uppercase tracking-wider">{label}</div>
+                <div className="text-white font-bold text-lg leading-tight mt-0.5">{value}</div>
+            </div>
+        </div>
+        <div className="flex items-center space-x-1 bg-primary/10 text-primary px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide">
+            <ArrowUpRight className="w-3 h-3" />{change}
+        </div>
+    </div>
+);
+
+/* ─── Main Section ─── */
 export const DataDashboardPreview: React.FC = () => {
+    const counter1 = useCounter(12847);
+    const counter2 = useCounter(284);
+    const counter3 = useCounter(97);
+
     return (
-        <section className="relative py-24 sm:py-32 bg-[#020202] overflow-hidden font-sans border-t border-white/5 z-10 w-full">
-            {/* Elegant Background Accents */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/10 blur-[150px] mix-blend-screen pointer-events-none rounded-full" />
-            <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-brand-gold/5 blur-[120px] mix-blend-screen pointer-events-none rounded-full" />
+        <section className="relative py-28 sm:py-36 bg-[#020202] overflow-hidden font-sans border-t border-white/5 z-10 w-full">
+            {/* Background Glow Effects */}
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-primary/[0.07] blur-[180px] pointer-events-none rounded-full" />
+            <div className="absolute bottom-0 right-1/4 w-[800px] h-[500px] bg-blue-500/[0.04] blur-[150px] pointer-events-none rounded-full" />
+            <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-brand-gold/[0.03] blur-[120px] pointer-events-none rounded-full" />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+            <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
 
-                {/* Refined Header Section */}
-                <div className="text-center mb-16 sm:mb-24 flex flex-col items-center max-w-3xl mx-auto">
-                    <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md shadow-lg">
+                {/* ─── Header ─── */}
+                <div className="text-center mb-20 flex flex-col items-center max-w-3xl mx-auto">
+                    <div className="inline-flex items-center space-x-2.5 px-5 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-8 backdrop-blur-md">
                         <Layers className="w-4 h-4 text-primary" />
-                        <span className="text-brand-muted text-xs font-semibold tracking-widest uppercase">The Ecosystem</span>
+                        <span className="text-white/60 text-[11px] font-bold tracking-[0.2em] uppercase">The Ecosystem</span>
                     </div>
 
-                    <h2 className="text-4xl sm:text-5xl md:text-[56px] font-medium text-white mb-6 tracking-tight leading-[1.05]">
+                    <h2 className="text-4xl sm:text-5xl md:text-[58px] font-semibold text-white mb-7 tracking-[-0.02em] leading-[1.08]">
                         Discover the Best Prop Firms<br />
-                        <span className="text-white/50">With Infinite Clarity</span>
+                        <span className="bg-gradient-to-r from-white/50 to-white/30 bg-clip-text text-transparent">With Infinite Clarity</span>
                     </h2>
 
-                    <p className="text-[16px] sm:text-[18px] text-brand-muted font-light max-w-2xl leading-relaxed">
-                        Say goodbye to scattered data. We've built an interconnected dashboard that centralizes real-time metrics, payouts, and trusted analytics straight to your screen.
+                    <p className="text-[16px] sm:text-[17px] text-white/40 font-normal max-w-xl leading-[1.7]">
+                        An interconnected dashboard that centralizes real-time metrics, payouts, and trusted analytics — straight to your screen.
                     </p>
                 </div>
 
-                {/* Bento Box Grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 w-full">
+                {/* ─── Bento Grid ─── */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full auto-rows-auto">
 
-                    {/* Left Hero Card - Match AI Engine (Spans 8 cols) */}
-                    <div className="xl:col-span-8 h-[550px] sm:h-[600px] w-full">
-                        <TiltCard className="h-full w-full" spotlightColor="rgba(16, 185, 129, 0.1)">
-                            <div className="p-8 sm:p-10 flex flex-col h-full relative overflow-hidden">
+                    {/* ━━━ Card 1: AI Match Engine (Large, spans 7 cols on first row) ━━━ */}
+                    <div className="lg:col-span-7 min-h-[420px]">
+                        <TiltCard className="h-full" spotlightColor="rgba(16, 185, 129, 0.08)">
+                            <div className="p-7 sm:p-9 flex flex-col h-full relative">
+                                {/* Decorative blurs */}
+                                <div className="absolute -left-20 -top-20 w-60 h-60 bg-primary/15 blur-[80px] rounded-full pointer-events-none" />
+                                <div className="absolute right-0 bottom-0 w-48 h-48 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none" />
 
-                                {/* Background Tech Gradients */}
-                                <div className="absolute -left-32 -top-32 w-96 h-96 bg-primary/20 blur-[100px] rounded-full" />
-                                <div className="absolute -right-32 bottom-0 w-96 h-96 bg-blue-500/10 blur-[100px] rounded-full" />
-
-                                {/* Top Badges */}
-                                <div className="flex justify-between items-start relative z-20">
-                                    <div className="flex items-center space-x-2 bg-black/40 border border-white/10 backdrop-blur-md px-3 py-1.5 rounded-full">
-                                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
-                                        <span className="text-white text-[11px] font-bold tracking-widest">SYSTEM LIVE</span>
+                                {/* Top badges */}
+                                <div className="flex justify-between items-start relative z-20 mb-8">
+                                    <div className="flex items-center space-x-2 bg-white/[0.04] border border-white/[0.08] px-3.5 py-1.5 rounded-full backdrop-blur-md">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.9)] animate-pulse" />
+                                        <span className="text-white text-[10px] font-bold tracking-[0.15em]">SYSTEM LIVE</span>
                                     </div>
-                                    <div className="bg-primary/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider flex items-center shadow-inner">
-                                        <Cpu className="w-3.5 h-3.5 mr-1.5" /> MATCH AI ENGINE
+                                    <div className="bg-primary/10 border border-primary/20 text-primary px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-[0.1em] flex items-center">
+                                        <Cpu className="w-3.5 h-3.5 mr-1.5" /> MATCH AI
                                     </div>
                                 </div>
 
-                                {/* Abstract Central Visualization */}
-                                <div className="flex-grow flex items-center justify-center relative mt-6 mb-8 w-full">
-                                    <div className="relative w-full max-w-md h-full flex items-center justify-center">
+                                {/* Central Visualization Area */}
+                                <div className="flex-grow flex items-center justify-center relative z-10">
+                                    <div className="relative w-full max-w-lg h-full flex items-center justify-center">
 
-                                        {/* Animated Connective Lines (SVG) */}
-                                        <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 4px rgba(16, 185, 129, 0.5))' }}>
-                                            <path d="M 50,200 C 150,200 150,100 250,100" fill="none" stroke="rgba(16,185,129,0.3)" strokeWidth="2" strokeDasharray="6 6" className="animate-[dash_20s_linear_infinite]" />
-                                            <path d="M 50,200 C 150,200 150,300 250,300" fill="none" stroke="rgba(16,185,129,0.3)" strokeWidth="2" strokeDasharray="6 6" className="animate-[dash_20s_linear_infinite_reverse]" />
-                                            <path d="M 250,100 C 350,100 350,200 450,200" fill="none" stroke="rgba(59,130,246,0.3)" strokeWidth="2" strokeDasharray="6 6" className="animate-[dash_15s_linear_infinite]" />
-                                            <path d="M 250,300 C 350,300 350,200 450,200" fill="none" stroke="rgba(59,130,246,0.3)" strokeWidth="2" strokeDasharray="6 6" className="animate-[dash_15s_linear_infinite_reverse]" />
+                                        {/* Animated SVG Connectors */}
+                                        <svg className="absolute inset-0 w-full h-full opacity-60" preserveAspectRatio="xMidYMid meet">
+                                            <path d="M 60,150 Q 150,150 200,80" fill="none" stroke="url(#lineGrad1)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dash_8s_linear_infinite]" />
+                                            <path d="M 60,150 Q 150,150 200,220" fill="none" stroke="url(#lineGrad1)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dashRev_8s_linear_infinite]" />
+                                            <path d="M 280,80 Q 330,80 380,150" fill="none" stroke="url(#lineGrad2)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dash_6s_linear_infinite]" />
+                                            <path d="M 280,220 Q 330,220 380,150" fill="none" stroke="url(#lineGrad2)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dashRev_6s_linear_infinite]" />
+                                            <defs>
+                                                <linearGradient id="lineGrad1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#10b981" /><stop offset="100%" stopColor="#10b981" stopOpacity="0.2" /></linearGradient>
+                                                <linearGradient id="lineGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" /><stop offset="100%" stopColor="#10b981" /></linearGradient>
+                                            </defs>
                                         </svg>
 
-                                        {/* Trader Input Card */}
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 bg-[#161616] border border-white/10 p-4 rounded-xl shadow-2xl backdrop-blur-xl z-10 w-44 hover:-translate-y-1 transition-transform">
-                                            <div className="flex items-center space-x-3 mb-3">
-                                                <div className="w-8 h-8 rounded-full bg-brand-muted/20 flex items-center justify-center">
-                                                    <BarChart3 className="w-4 h-4 text-brand-muted" />
+                                        {/* Input: Trader Profile Card */}
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#0c0c0c] border border-white/[0.08] p-5 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl z-10 w-48 hover:scale-[1.03] transition-transform duration-300">
+                                            <div className="flex items-center space-x-3 mb-4">
+                                                <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                                    <BarChart3 className="w-4 h-4 text-primary" />
                                                 </div>
-                                                <div className="text-white text-xs font-semibold">Your Profile</div>
+                                                <div>
+                                                    <div className="text-white text-xs font-bold">Your Profile</div>
+                                                    <div className="text-white/30 text-[10px]">Risk: Moderate</div>
+                                                </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <div className="h-1.5 w-full bg-white/10 rounded-full"><div className="h-full bg-brand-muted/40 rounded-full w-[80%]" /></div>
-                                                <div className="h-1.5 w-full bg-white/10 rounded-full"><div className="h-full bg-brand-muted/40 rounded-full w-[60%]" /></div>
-                                                <div className="h-1.5 w-full bg-white/10 rounded-full"><div className="h-full bg-brand-muted/40 rounded-full w-[40%]" /></div>
+                                            <div className="space-y-2.5">
+                                                <div><div className="text-white/30 text-[9px] mb-1 font-medium">Experience</div><div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full w-[75%]" /></div></div>
+                                                <div><div className="text-white/30 text-[9px] mb-1 font-medium">Budget</div><div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-blue-500/80 to-blue-400 rounded-full w-[55%]" /></div></div>
+                                                <div><div className="text-white/30 text-[9px] mb-1 font-medium">Instrument</div><div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-brand-gold/80 to-brand-gold rounded-full w-[90%]" /></div></div>
                                             </div>
                                         </div>
 
-                                        {/* Central Core */}
+                                        {/* Central Pulsing Core */}
                                         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
                                             <div className="relative">
-                                                {/* Pulsing rings */}
-                                                <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping scale-150" style={{ animationDuration: '3s' }} />
-                                                <div className="absolute inset-0 bg-primary/30 rounded-full blur-md" />
-                                                {/* Core Orb */}
-                                                <div className="w-20 h-20 bg-gradient-to-br from-[#111] to-[#222] border-2 border-primary/50 rounded-full flex items-center justify-center relative shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                                                    <Zap className="w-8 h-8 text-primary drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                                                <div className="absolute -inset-6 bg-primary/15 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+                                                <div className="absolute -inset-4 bg-primary/20 rounded-full blur-lg" />
+                                                <div className="w-[72px] h-[72px] bg-gradient-to-br from-[#0d0d0d] to-[#1a1a1a] border-2 border-primary/40 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.25),inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                                                    <Zap className="w-7 h-7 text-primary drop-shadow-[0_0_12px_rgba(16,185,129,0.9)]" />
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Output Cards */}
-                                        <div className="absolute right-0 top-1/4 -mt-4 bg-gradient-to-br from-[#111] to-black border border-primary/30 p-3 rounded-xl shadow-2xl backdrop-blur-xl z-10 w-40 transform translate-x-4 hover:-translate-y-1 transition-transform">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <div className="text-white font-bold text-xs flex items-center"><CheckCircle2 className="w-3 h-3 text-primary mr-1" /> Match 98%</div>
+                                        {/* Output: Match Result Cards */}
+                                        <div className="absolute right-0 top-[20%] bg-[#0c0c0c] border border-primary/30 p-4 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl z-10 w-44 hover:scale-[1.03] transition-transform duration-300 translate-x-2">
+                                            <div className="flex items-center space-x-2 mb-3">
+                                                <CheckCircle2 className="w-4 h-4 text-primary" />
+                                                <span className="text-white font-bold text-sm">98% Match</span>
                                             </div>
-                                            <div className="text-[10px] text-brand-muted bg-white/5 p-1.5 rounded">Payout: Bi-weekly</div>
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Payout</span><span className="text-white font-medium">Bi-weekly</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Profit Split</span><span className="text-primary font-bold">90%</span></div>
+                                            </div>
                                         </div>
 
-                                        <div className="absolute right-0 bottom-1/4 mb-0 bg-gradient-to-br from-[#111] to-black border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-xl z-10 w-40 transform translate-x-12 hover:-translate-y-1 transition-transform opacity-70">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <div className="text-white font-bold text-xs">Match 85%</div>
+                                        <div className="absolute right-4 bottom-[15%] bg-[#0c0c0c] border border-white/[0.06] p-4 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl z-10 w-40 hover:scale-[1.03] transition-transform duration-300 opacity-60">
+                                            <div className="flex items-center space-x-2 mb-3">
+                                                <span className="text-white/80 font-bold text-sm">85% Match</span>
                                             </div>
-                                            <div className="text-[10px] text-brand-muted bg-white/5 p-1.5 rounded">Scaling: Very Fast</div>
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Scaling</span><span className="text-white font-medium">Very Fast</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Daily DD</span><span className="text-blue-400 font-bold">5%</span></div>
+                                            </div>
                                         </div>
-
                                     </div>
                                 </div>
 
-                                {/* Bottom Info Text */}
-                                <div className="mt-auto max-w-md relative z-20">
-                                    <h4 className="text-white text-2xl font-semibold mb-2 drop-shadow-lg tracking-tight">Algorithmic Matchmaking</h4>
-                                    <p className="text-brand-muted text-[15px] leading-relaxed drop-shadow-md">
-                                        Our proprietary AI engine processes 50+ unique data points across global prop firms to instantly recommend the perfect trading environment for your specific style.
+                                {/* Bottom Title */}
+                                <div className="mt-auto max-w-sm relative z-20 pt-6">
+                                    <h4 className="text-white text-[22px] font-bold mb-2 tracking-tight leading-tight">Algorithmic Matchmaking</h4>
+                                    <p className="text-white/35 text-[14px] leading-relaxed">
+                                        Our AI evaluates 50+ data points to find your perfect prop firm in seconds.
                                     </p>
                                 </div>
                             </div>
                         </TiltCard>
                     </div>
 
-                    {/* Right Stacked Data Cards (Spans 4 cols) */}
-                    <div className="xl:col-span-4 grid grid-rows-2 gap-8 h-[550px] sm:h-[600px] w-full">
-
-                        {/* Live Pricing Feed */}
-                        <TiltCard className="h-full w-full group/card flex flex-col" spotlightColor="rgba(255, 255, 255, 0.05)">
-                            <div className="p-6 sm:p-8 flex-grow flex flex-col justify-center relative">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full pointer-events-none blur-2xl" />
+                    {/* ━━━ Card 2: Live Stats (Spans 5 cols on first row) ━━━ */}
+                    <div className="lg:col-span-5 min-h-[420px]" ref={counter1.ref}>
+                        <TiltCard className="h-full" spotlightColor="rgba(59, 130, 246, 0.08)">
+                            <div className="p-7 sm:p-9 flex flex-col h-full relative">
+                                <div className="absolute -right-16 -top-16 w-52 h-52 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
 
                                 <div className="flex items-center justify-between mb-8 relative z-10">
-                                    <h4 className="text-white text-lg font-semibold flex items-center tracking-tight">
-                                        <Clock className="w-5 h-5 mr-3 text-primary animate-pulse" /> Live Pricing
+                                    <h4 className="text-white text-xl font-bold flex items-center tracking-tight">
+                                        <Globe className="w-5 h-5 mr-3 text-blue-400" /> Platform Overview
                                     </h4>
-                                    <span className="text-white text-[10px] font-bold px-2.5 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-widest flex items-center">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 animate-pulse" /> Live
+                                    <div className="flex items-center space-x-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider border border-emerald-500/20">
+                                        <ArrowUpRight className="w-3 h-3" /> +24%
+                                    </div>
+                                </div>
+
+                                {/* Big Stat Number */}
+                                <div className="mb-8 relative z-10">
+                                    <div className="text-white/30 text-[11px] font-bold uppercase tracking-[0.2em] mb-2">Active Traders This Month</div>
+                                    <div className="flex items-end space-x-3">
+                                        <span className="text-white text-5xl font-bold tracking-tight leading-none">{counter1.count.toLocaleString()}</span>
+                                        <Sparkline data={[20, 35, 28, 45, 38, 55, 48, 62, 58, 72, 65, 80]} color="#3b82f6" className="mb-1.5" />
+                                    </div>
+                                </div>
+
+                                {/* Stats grid */}
+                                <div className="space-y-3 flex-grow relative z-10">
+                                    <StatPill icon={DollarSign} label="Total Paid Out" value={`$${counter2.count}M+`} change="+18%" color="text-emerald-400" />
+                                    <StatPill icon={ShieldCheck} label="Firms Verified" value={`${counter3.count}+`} change="+6" color="text-blue-400" />
+                                </div>
+                            </div>
+                        </TiltCard>
+                    </div>
+
+                    {/* ━━━ Card 3: Live Pricing Feed (Spans 5 cols on second row) ━━━ */}
+                    <div className="lg:col-span-5 min-h-[340px]">
+                        <TiltCard className="h-full" spotlightColor="rgba(255, 255, 255, 0.04)">
+                            <div className="p-7 sm:p-9 flex flex-col h-full relative">
+                                <div className="absolute top-0 right-0 w-40 h-40 bg-brand-gold/5 rounded-bl-[80px] pointer-events-none blur-3xl" />
+
+                                <div className="flex items-center justify-between mb-7 relative z-10">
+                                    <h4 className="text-white text-xl font-bold flex items-center tracking-tight">
+                                        <Clock className="w-5 h-5 mr-3 text-primary" /> Live Pricing Feed
+                                    </h4>
+                                    <span className="flex items-center space-x-1.5 bg-red-500/15 text-red-400 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider border border-red-500/20">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> LIVE
                                     </span>
                                 </div>
 
-                                <div className="space-y-3 relative z-10">
-                                    {/* Item 1 */}
-                                    <div className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5 hover:border-white/10 hover:bg-black/60 transition-all cursor-default">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 bg-[#0f0f0f] rounded-lg border border-white/10 flex items-center justify-center font-bold text-white text-[13px] tracking-wider shadow-inner">
+                                <div className="space-y-3 flex-grow relative z-10">
+                                    {/* FTMO */}
+                                    <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-11 h-11 bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-center font-black text-white text-[14px] tracking-wider group-hover/item:scale-110 transition-transform">
                                                 FT
                                             </div>
                                             <div>
-                                                <div className="text-white font-semibold text-[13px]">FTMO 100k</div>
-                                                <div className="text-brand-muted text-[10px] uppercase tracking-wider mt-0.5">Standard</div>
+                                                <div className="text-white font-bold text-[14px]">FTMO</div>
+                                                <div className="text-white/30 text-[10px] uppercase tracking-wider mt-0.5 font-medium">100k Standard</div>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <div className="text-white font-semibold text-[15px]">$540.00</div>
-                                            <div className="text-primary text-[9px] uppercase font-bold mt-1 tracking-widest">Top Tier</div>
+                                        <div className="text-right flex items-center space-x-4">
+                                            <Sparkline data={[540, 535, 538, 540, 542, 540, 540]} color="#10b981" />
+                                            <div>
+                                                <div className="text-white font-bold text-[16px]">$540</div>
+                                                <div className="text-primary text-[9px] uppercase font-bold mt-1 tracking-[0.15em]">Top Tier</div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Item 2 */}
-                                    <div className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5 hover:border-white/10 hover:bg-black/60 transition-all cursor-default relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-16 h-16 bg-brand-gold/5 blur-xl pointer-events-none" />
-                                        <div className="flex items-center space-x-3 relative z-10">
-                                            <div className="w-10 h-10 bg-[#0f0f0f] rounded-lg border border-white/10 flex items-center justify-center font-bold text-white text-[13px] tracking-wider shadow-inner">
+                                    {/* FundedNext */}
+                                    <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-gold/[0.03] to-transparent pointer-events-none" />
+                                        <div className="flex items-center space-x-4 relative z-10">
+                                            <div className="w-11 h-11 bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-center font-black text-white text-[14px] tracking-wider group-hover/item:scale-110 transition-transform">
                                                 FN
                                             </div>
                                             <div>
-                                                <div className="text-white font-semibold text-[13px]">FundedNext</div>
-                                                <div className="text-brand-muted text-[10px] uppercase tracking-wider mt-0.5">100k Stellar</div>
+                                                <div className="text-white font-bold text-[14px]">FundedNext</div>
+                                                <div className="text-white/30 text-[10px] uppercase tracking-wider mt-0.5 font-medium">100k Stellar</div>
                                             </div>
                                         </div>
-                                        <div className="text-right relative z-10">
-                                            <div className="text-white font-semibold text-[15px]">$519.00</div>
-                                            <div className="text-brand-gold text-[9px] uppercase font-bold mt-1 tracking-widest">Trending</div>
+                                        <div className="text-right flex items-center space-x-4 relative z-10">
+                                            <Sparkline data={[515, 519, 517, 520, 518, 519, 519]} color="#f59e0b" />
+                                            <div>
+                                                <div className="text-white font-bold text-[16px]">$519</div>
+                                                <div className="text-brand-gold text-[9px] uppercase font-bold mt-1 tracking-[0.15em]">Trending</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* The5ers */}
+                                    <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-11 h-11 bg-gradient-to-br from-white/[0.06] to-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-center font-black text-white text-[14px] tracking-wider group-hover/item:scale-110 transition-transform">
+                                                T5
+                                            </div>
+                                            <div>
+                                                <div className="text-white font-bold text-[14px]">The5%ers</div>
+                                                <div className="text-white/30 text-[10px] uppercase tracking-wider mt-0.5 font-medium">100k Hyper Growth</div>
+                                            </div>
+                                        </div>
+                                        <div className="text-right flex items-center space-x-4">
+                                            <Sparkline data={[450, 460, 455, 462, 458, 460, 460]} color="#8b5cf6" />
+                                            <div>
+                                                <div className="text-white font-bold text-[16px]">$460</div>
+                                                <div className="text-purple-400 text-[9px] uppercase font-bold mt-1 tracking-[0.15em]">Popular</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </TiltCard>
-
-                        {/* Verified Analytics */}
-                        <TiltCard className="h-full w-full" spotlightColor="rgba(59, 130, 246, 0.1)">
-                            <div className="p-6 sm:p-8 h-full flex flex-col justify-center relative overflow-hidden">
-                                <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
-                                <div className="absolute -left-10 -top-10 w-40 h-40 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none" />
-
-                                <div className="relative z-10">
-                                    <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
-                                        <ShieldCheck className="w-6 h-6 text-primary" />
-                                    </div>
-                                    <h4 className="text-white text-xl font-semibold mb-3 tracking-tight">Verified Trust Metrics</h4>
-                                    <p className="text-brand-muted text-[14px] leading-relaxed mb-8">
-                                        Our systems evaluate global firm payout metrics daily to ensure complete reliability for your trades.
-                                    </p>
-
-                                    <div className="space-y-3 p-4 bg-black/30 rounded-xl border border-white/5">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-white text-xs font-semibold tracking-wide">Platform Reliability</span>
-                                            <span className="text-primary font-bold text-lg leading-none">98.5%</span>
-                                        </div>
-                                        <div className="w-full bg-[#111] rounded-full h-1.5 overflow-hidden border border-white/5">
-                                            <div className="bg-gradient-to-r from-blue-500 to-primary h-full rounded-full w-[98.5%] shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </TiltCard>
-
                     </div>
-                </div>
 
-                {/* Custom Keyframes for Animations */}
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                    @keyframes dash {
-                        to { stroke-dashoffset: -100; }
-                    }
-                    @keyframes dash_reverse {
-                        to { stroke-dashoffset: 100; }
-                    }
-                `}} />
+                    {/* ━━━ Card 4: Verified Trust Metrics (Spans 7 cols on second row) ━━━ */}
+                    <div className="lg:col-span-7 min-h-[340px]">
+                        <TiltCard className="h-full" spotlightColor="rgba(16, 185, 129, 0.06)">
+                            <div className="p-7 sm:p-9 flex flex-col h-full relative overflow-hidden">
+                                <div className="absolute -right-20 -bottom-20 w-72 h-72 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+                                <div className="absolute -left-10 -top-10 w-40 h-40 bg-blue-500/5 blur-[60px] rounded-full pointer-events-none" />
+
+                                <div className="flex items-center justify-between mb-8 relative z-10">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                            <ShieldCheck className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-white text-xl font-bold tracking-tight">Verified Trust Metrics</h4>
+                                            <p className="text-white/30 text-[11px] mt-0.5">Updated every 24 hours</p>
+                                        </div>
+                                    </div>
+                                    <div className="hidden sm:flex items-center space-x-2 bg-white/[0.04] border border-white/[0.08] px-3 py-1.5 rounded-full">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                                        <span className="text-white/60 text-[10px] font-bold tracking-wide">ALL CHECKS PASSING</span>
+                                    </div>
+                                </div>
+
+                                {/* Metrics Grid */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-grow relative z-10">
+                                    {/* Reliability */}
+                                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.04] transition-all">
+                                        <div className="text-white/30 text-[10px] font-bold uppercase tracking-[0.15em] mb-3">Reliability</div>
+                                        <div className="flex items-end justify-between mb-3">
+                                            <span className="text-white text-3xl font-bold">98.5%</span>
+                                            <Sparkline data={[95, 96, 97, 96, 98, 97, 98, 98, 99, 98]} color="#10b981" />
+                                        </div>
+                                        <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
+                                            <div className="bg-gradient-to-r from-primary to-emerald-400 h-full rounded-full w-[98.5%] shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                                        </div>
+                                    </div>
+
+                                    {/* Payout Speed */}
+                                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.04] transition-all">
+                                        <div className="text-white/30 text-[10px] font-bold uppercase tracking-[0.15em] mb-3">Avg. Payout Time</div>
+                                        <div className="flex items-end justify-between mb-3">
+                                            <span className="text-white text-3xl font-bold">1.2<span className="text-lg text-white/40 ml-1">days</span></span>
+                                            <Sparkline data={[3, 2.5, 2, 1.8, 1.5, 1.3, 1.2, 1.2, 1.1, 1.2]} color="#3b82f6" />
+                                        </div>
+                                        <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
+                                            <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-full rounded-full w-[92%] shadow-[0_0_12px_rgba(59,130,246,0.5)]" />
+                                        </div>
+                                    </div>
+
+                                    {/* User Satisfaction */}
+                                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 flex flex-col justify-between hover:bg-white/[0.04] transition-all">
+                                        <div className="text-white/30 text-[10px] font-bold uppercase tracking-[0.15em] mb-3">User Satisfaction</div>
+                                        <div className="flex items-end justify-between mb-3">
+                                            <span className="text-white text-3xl font-bold">4.9<span className="text-lg text-white/40 ml-1">/5.0</span></span>
+                                            <Sparkline data={[4.5, 4.6, 4.7, 4.7, 4.8, 4.8, 4.9, 4.9, 4.9, 4.9]} color="#f59e0b" />
+                                        </div>
+                                        <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
+                                            <div className="bg-gradient-to-r from-brand-gold to-yellow-400 h-full rounded-full w-[98%] shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </TiltCard>
+                    </div>
+
+                </div>
             </div>
+
+            {/* Animation Keyframes */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes dash { to { stroke-dashoffset: -80; } }
+                @keyframes dashRev { to { stroke-dashoffset: 80; } }
+            `}} />
         </section>
     );
 };
-
