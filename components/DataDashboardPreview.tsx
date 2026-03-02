@@ -150,99 +150,144 @@ export const DataDashboardPreview: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full auto-rows-auto">
 
                     {/* ━━━ Card 1: AI Match Engine (Large, spans 7 cols on first row) ━━━ */}
-                    <div className="lg:col-span-7 min-h-[420px]">
+                    <div className="lg:col-span-7 min-h-[480px]">
                         <TiltCard className="h-full" spotlightColor="rgba(16, 185, 129, 0.08)">
-                            <div className="p-7 sm:p-9 flex flex-col h-full relative">
+                            <div className="p-7 sm:p-9 flex flex-col h-full relative overflow-hidden">
                                 {/* Decorative blurs */}
-                                <div className="absolute -left-20 -top-20 w-60 h-60 bg-primary/15 blur-[80px] rounded-full pointer-events-none" />
-                                <div className="absolute right-0 bottom-0 w-48 h-48 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none" />
+                                <div className="absolute -left-20 -top-20 w-72 h-72 bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
+                                <div className="absolute right-0 bottom-0 w-64 h-64 bg-blue-500/8 blur-[80px] rounded-full pointer-events-none" />
 
-                                {/* Top badges */}
-                                <div className="flex justify-between items-start relative z-20 mb-8">
-                                    <div className="flex items-center space-x-2 bg-white/[0.04] border border-white/[0.08] px-3.5 py-1.5 rounded-full backdrop-blur-md">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.9)] animate-pulse" />
-                                        <span className="text-white text-[10px] font-bold tracking-[0.15em]">SYSTEM LIVE</span>
+                                {/* Top: Title Area */}
+                                <div className="relative z-20 mb-5">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center space-x-2 bg-white/[0.04] border border-white/[0.08] px-3.5 py-1.5 rounded-full backdrop-blur-md">
+                                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.9)] animate-pulse" />
+                                            <span className="text-white text-[10px] font-bold tracking-[0.15em]">SYSTEM LIVE</span>
+                                        </div>
+                                        <div className="bg-primary/10 border border-primary/20 text-primary px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-[0.1em] flex items-center">
+                                            <Cpu className="w-3.5 h-3.5 mr-1.5" /> MATCH AI
+                                        </div>
                                     </div>
-                                    <div className="bg-primary/10 border border-primary/20 text-primary px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-[0.1em] flex items-center">
-                                        <Cpu className="w-3.5 h-3.5 mr-1.5" /> MATCH AI
-                                    </div>
+                                    <h4 className="text-white text-[22px] font-bold tracking-tight leading-tight">Find Your Perfect Prop Firm</h4>
+                                    <p className="text-white/35 text-[13px] leading-relaxed mt-1.5">Our AI processes your unique trading profile across 50+ data points to deliver instant, precision-matched recommendations.</p>
                                 </div>
 
-                                {/* Central Visualization Area */}
-                                <div className="flex-grow flex items-center justify-center relative z-10">
-                                    <div className="relative w-full max-w-lg h-full flex items-center justify-center">
+                                {/* 3-Column Flow Visualization */}
+                                <div className="flex-grow grid grid-cols-[1fr_auto_1fr] gap-3 sm:gap-4 items-center relative z-10">
 
-                                        {/* Animated SVG Connectors */}
-                                        <svg className="absolute inset-0 w-full h-full opacity-60" preserveAspectRatio="xMidYMid meet">
-                                            <path d="M 60,150 Q 150,150 200,80" fill="none" stroke="url(#lineGrad1)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dash_8s_linear_infinite]" />
-                                            <path d="M 60,150 Q 150,150 200,220" fill="none" stroke="url(#lineGrad1)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dashRev_8s_linear_infinite]" />
-                                            <path d="M 280,80 Q 330,80 380,150" fill="none" stroke="url(#lineGrad2)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dash_6s_linear_infinite]" />
-                                            <path d="M 280,220 Q 330,220 380,150" fill="none" stroke="url(#lineGrad2)" strokeWidth="1.5" strokeDasharray="5 5" className="animate-[dashRev_6s_linear_infinite]" />
-                                            <defs>
-                                                <linearGradient id="lineGrad1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#10b981" /><stop offset="100%" stopColor="#10b981" stopOpacity="0.2" /></linearGradient>
-                                                <linearGradient id="lineGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" /><stop offset="100%" stopColor="#10b981" /></linearGradient>
-                                            </defs>
-                                        </svg>
+                                    {/* Column 1: YOUR PREFERENCES */}
+                                    <div className="space-y-2.5">
+                                        <div className="text-[9px] text-white/25 font-bold uppercase tracking-[0.2em] text-center mb-1">Your Preferences</div>
 
-                                        {/* Input: Trader Profile Card */}
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#0c0c0c] border border-white/[0.08] p-5 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl z-10 w-48 hover:scale-[1.03] transition-transform duration-300">
-                                            <div className="flex items-center space-x-3 mb-4">
-                                                <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                                                    <BarChart3 className="w-4 h-4 text-primary" />
+                                        <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-3.5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300">
+                                            <div className="flex items-center space-x-2.5 mb-2.5">
+                                                <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                                                    <TrendingUp className="w-3.5 h-3.5 text-primary" />
                                                 </div>
-                                                <div>
-                                                    <div className="text-white text-xs font-bold">Your Profile</div>
-                                                    <div className="text-white/30 text-[10px]">Risk: Moderate</div>
+                                                <div className="min-w-0">
+                                                    <div className="text-white text-[11px] font-bold">Experience</div>
+                                                    <div className="text-white/30 text-[9px]">Intermediate</div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-2.5">
-                                                <div><div className="text-white/30 text-[9px] mb-1 font-medium">Experience</div><div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full w-[75%]" /></div></div>
-                                                <div><div className="text-white/30 text-[9px] mb-1 font-medium">Budget</div><div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-blue-500/80 to-blue-400 rounded-full w-[55%]" /></div></div>
-                                                <div><div className="text-white/30 text-[9px] mb-1 font-medium">Instrument</div><div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-brand-gold/80 to-brand-gold rounded-full w-[90%]" /></div></div>
+                                            <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-primary to-emerald-400 rounded-full w-[75%] shadow-[0_0_6px_rgba(16,185,129,0.4)]" /></div>
+                                        </div>
+
+                                        <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-3.5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300">
+                                            <div className="flex items-center space-x-2.5 mb-2.5">
+                                                <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                                                    <DollarSign className="w-3.5 h-3.5 text-blue-400" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div className="text-white text-[11px] font-bold">Budget</div>
+                                                    <div className="text-white/30 text-[9px]">$200 - $600</div>
+                                                </div>
+                                            </div>
+                                            <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full w-[55%] shadow-[0_0_6px_rgba(59,130,246,0.4)]" /></div>
+                                        </div>
+
+                                        <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-3.5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300">
+                                            <div className="flex items-center space-x-2.5 mb-2.5">
+                                                <div className="w-7 h-7 rounded-lg bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center flex-shrink-0">
+                                                    <BarChart3 className="w-3.5 h-3.5 text-brand-gold" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div className="text-white text-[11px] font-bold">Instruments</div>
+                                                    <div className="text-white/30 text-[9px]">Forex Majors</div>
+                                                </div>
+                                            </div>
+                                            <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-brand-gold to-yellow-400 rounded-full w-[90%] shadow-[0_0_6px_rgba(245,158,11,0.4)]" /></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Column 2: AI CORE (Center) */}
+                                    <div className="flex flex-col items-center justify-center space-y-3 px-1 sm:px-3">
+                                        <div className="flex items-center text-primary/30">
+                                            <div className="w-5 sm:w-8 h-px bg-gradient-to-r from-primary/40 to-primary/10" />
+                                            <ArrowUpRight className="w-3 h-3 text-primary/50 rotate-45 animate-pulse" style={{ animationDuration: '2s' }} />
+                                        </div>
+
+                                        <div className="relative">
+                                            <div className="absolute -inset-5 bg-primary/10 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+                                            <div className="absolute -inset-3 bg-primary/15 rounded-full blur-md" />
+                                            <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-gradient-to-br from-[#0a0a0a] to-[#151515] border-2 border-primary/40 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.2),inset_0_1px_1px_rgba(255,255,255,0.08)] relative">
+                                                <Zap className="w-5 h-5 sm:w-7 sm:h-7 text-primary drop-shadow-[0_0_15px_rgba(16,185,129,0.9)]" />
                                             </div>
                                         </div>
 
-                                        {/* Central Pulsing Core */}
-                                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                                            <div className="relative">
-                                                <div className="absolute -inset-6 bg-primary/15 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
-                                                <div className="absolute -inset-4 bg-primary/20 rounded-full blur-lg" />
-                                                <div className="w-[72px] h-[72px] bg-gradient-to-br from-[#0d0d0d] to-[#1a1a1a] border-2 border-primary/40 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.25),inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                                                    <Zap className="w-7 h-7 text-primary drop-shadow-[0_0_12px_rgba(16,185,129,0.9)]" />
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <div className="text-[8px] sm:text-[9px] text-primary font-bold tracking-[0.15em] uppercase text-center">AI Engine</div>
 
-                                        {/* Output: Match Result Cards */}
-                                        <div className="absolute right-0 top-[20%] bg-[#0c0c0c] border border-primary/30 p-4 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl z-10 w-44 hover:scale-[1.03] transition-transform duration-300 translate-x-2">
-                                            <div className="flex items-center space-x-2 mb-3">
-                                                <CheckCircle2 className="w-4 h-4 text-primary" />
-                                                <span className="text-white font-bold text-sm">98% Match</span>
+                                        <div className="flex items-center text-primary/30">
+                                            <ArrowUpRight className="w-3 h-3 text-primary/50 rotate-45 animate-pulse" style={{ animationDuration: '2s', animationDelay: '1s' }} />
+                                            <div className="w-5 sm:w-8 h-px bg-gradient-to-l from-primary/40 to-primary/10" />
+                                        </div>
+                                    </div>
+
+                                    {/* Column 3: MATCHED RESULTS */}
+                                    <div className="space-y-2.5">
+                                        <div className="text-[9px] text-white/25 font-bold uppercase tracking-[0.2em] text-center mb-1">Best Matches</div>
+
+                                        {/* Top Match */}
+                                        <div className="bg-white/[0.03] border border-primary/20 rounded-2xl p-3.5 relative overflow-hidden hover:bg-white/[0.05] transition-all duration-300">
+                                            <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 blur-xl rounded-full pointer-events-none" />
+                                            <div className="flex items-center justify-between mb-2.5">
+                                                <div className="flex items-center space-x-1.5">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                                                    <span className="text-white font-bold text-[12px]">98% Match</span>
+                                                </div>
+                                                <span className="text-[7px] bg-primary/15 text-primary px-1.5 py-0.5 rounded-full font-bold tracking-wider">TOP PICK</span>
                                             </div>
                                             <div className="space-y-1.5">
-                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Payout</span><span className="text-white font-medium">Bi-weekly</span></div>
-                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Profit Split</span><span className="text-primary font-bold">90%</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/35">Firm</span><span className="text-white font-semibold">FTMO</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/35">Payout</span><span className="text-white font-semibold">Bi-weekly</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/35">Profit Split</span><span className="text-primary font-bold">90%</span></div>
                                             </div>
                                         </div>
 
-                                        <div className="absolute right-4 bottom-[15%] bg-[#0c0c0c] border border-white/[0.06] p-4 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl z-10 w-40 hover:scale-[1.03] transition-transform duration-300 opacity-60">
-                                            <div className="flex items-center space-x-2 mb-3">
-                                                <span className="text-white/80 font-bold text-sm">85% Match</span>
+                                        {/* Second Match */}
+                                        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-3.5 hover:bg-white/[0.05] transition-all duration-300 opacity-80">
+                                            <div className="flex items-center justify-between mb-2.5">
+                                                <div className="flex items-center space-x-1.5">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+                                                    <span className="text-white font-bold text-[12px]">92% Match</span>
+                                                </div>
+                                                <span className="text-[7px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded-full font-bold tracking-wider">#2</span>
                                             </div>
                                             <div className="space-y-1.5">
-                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Scaling</span><span className="text-white font-medium">Very Fast</span></div>
-                                                <div className="flex justify-between text-[10px]"><span className="text-white/40">Daily DD</span><span className="text-blue-400 font-bold">5%</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/35">Firm</span><span className="text-white font-semibold">FundedNext</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/35">Scaling</span><span className="text-white font-semibold">Very Fast</span></div>
+                                                <div className="flex justify-between text-[10px]"><span className="text-white/35">Profit Split</span><span className="text-blue-400 font-bold">95%</span></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Third Match (faded) */}
+                                        <div className="bg-white/[0.02] border border-white/[0.04] rounded-2xl p-2.5 opacity-40">
+                                            <div className="flex items-center space-x-1.5">
+                                                <CheckCircle2 className="w-3 h-3 text-white/40" />
+                                                <span className="text-white/70 font-bold text-[11px]">85% Match</span>
+                                                <span className="text-[7px] bg-white/5 text-white/40 px-1.5 py-0.5 rounded-full font-bold">#3</span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Bottom Title */}
-                                <div className="mt-auto max-w-sm relative z-20 pt-6">
-                                    <h4 className="text-white text-[22px] font-bold mb-2 tracking-tight leading-tight">Algorithmic Matchmaking</h4>
-                                    <p className="text-white/35 text-[14px] leading-relaxed">
-                                        Our AI evaluates 50+ data points to find your perfect prop firm in seconds.
-                                    </p>
                                 </div>
                             </div>
                         </TiltCard>
@@ -427,15 +472,15 @@ export const DataDashboardPreview: React.FC = () => {
                         </TiltCard>
                     </div>
 
-                </div>
-            </div>
+                </div >
+            </div >
 
             {/* Animation Keyframes */}
-            <style dangerouslySetInnerHTML={{
+            < style dangerouslySetInnerHTML={{
                 __html: `
                 @keyframes dash { to { stroke-dashoffset: -80; } }
                 @keyframes dashRev { to { stroke-dashoffset: 80; } }
             `}} />
-        </section>
+        </section >
     );
 };
