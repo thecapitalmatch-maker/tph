@@ -27,9 +27,17 @@ const BrowseFirmsPage: React.FC = () => {
   // Filter States
   const [profitSplit, setProfitSplit] = useState(80);
   const [maxDrawdown, setMaxDrawdown] = useState(10);
-  const [minRating, setMinRating] = useState(4);
+  const [minRating, setMinRating] = useState(0);
   const [selectedAccountType, setSelectedAccountType] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState('trust');
+  const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+
+  const toggleAsset = (asset: string) => {
+    setSelectedAssets(prev =>
+      prev.includes(asset) ? prev.filter(a => a !== asset) : [...prev, asset]
+    );
+  };
 
   // Dynamic Date Logic
   const { dynamicTitle, todayDate } = useMemo(() => {
@@ -54,34 +62,68 @@ const BrowseFirmsPage: React.FC = () => {
     };
   }, []);
 
-  const filteredFirms = firms.filter(firm => {
-    const tagMatch = firm.tags ? firm.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) : false;
-    const matchesSearch = !searchTerm || firm.name.toLowerCase().includes(searchTerm.toLowerCase()) || tagMatch;
-    const matchesRating = firm.rating >= minRating;
+  const filteredFirms = useMemo(() => {
+    const filtered = firms.filter(firm => {
+      const tagMatch = firm.tags ? firm.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase())) : false;
+      const matchesSearch = !searchTerm || firm.name.toLowerCase().includes(searchTerm.toLowerCase()) || tagMatch;
+      const matchesRating = (firm.trustScore || 0) >= minRating;
 
-    const profitSplitStr = firm.profitSplit || '80';
-    const profitNumbers = profitSplitStr.match(/\d+/g);
-    const maxProfitSplit = profitNumbers ? Math.max(...profitNumbers.map(Number)) : 80;
-    const matchesProfitSplit = maxProfitSplit >= profitSplit;
+      const profitSplitStr = firm.profitSplit || '80';
+      const profitNumbers = profitSplitStr.match(/\d+/g);
+      const maxProfitSplit = profitNumbers ? Math.max(...profitNumbers.map(Number)) : 80;
+      const matchesProfitSplit = maxProfitSplit >= profitSplit;
 
-    const drawdownStr = firm.drawdown || '10%';
-    const drawdownNum = parseInt(drawdownStr.replace(/[^0-9]/g, '')) || 10;
-    const matchesDrawdown = drawdownNum <= maxDrawdown;
+      const drawdownStr = firm.maxDrawdown || '10%';
+      const drawdownNum = parseInt(drawdownStr.replace(/[^0-9]/g, '')) || 10;
+      const matchesDrawdown = drawdownNum <= maxDrawdown;
 
-    let matchesType = true;
-    if (selectedAccountType) {
-      const typeMap: Record<string, string> = {
-        'One Step': '1-Step',
-        'Two Step': '2-Step',
-        'Three Step': '3-Step',
-        'Instant': 'Instant'
-      };
-      const targetType = typeMap[selectedAccountType];
-      matchesType = firm.challenges ? firm.challenges.some(c => c.challengeType === targetType) : true;
+      let matchesType = true;
+      if (selectedAccountType) {
+        const typeMap: Record<string, string> = {
+          'One Step': '1-Step',
+          'Two Step': '2-Step',
+          'Three Step': '3-Step',
+          'Instant': 'Instant'
+        };
+        const targetType = typeMap[selectedAccountType];
+        matchesType = firm.challenges ? firm.challenges.some((c: any) => c.challengeType === targetType) : (firm.evaluationType === targetType);
+      }
+
+      // Asset filter: skip if no assets selected or firm has no instrument data
+      let matchesAssets = true;
+      if (selectedAssets.length > 0) {
+        const firmInstruments = [...(firm.instruments || []), ...(firm.tags || []), ...(firm.features || [])].map((s: string) => s.toLowerCase());
+        // If the firm has instrument/tag data, check for a match; otherwise pass through
+        if (firmInstruments.length > 0) {
+          matchesAssets = selectedAssets.some(asset => firmInstruments.some(inst => inst.includes(asset.toLowerCase())));
+        }
+        // else: no data to filter on, so pass through (matchesAssets stays true)
+      }
+
+      return matchesSearch && matchesRating && matchesProfitSplit && matchesDrawdown && matchesType && matchesAssets;
+    });
+
+    // Sort
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case 'trust':
+        sorted.sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0));
+        break;
+      case 'price':
+        sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+        break;
+      case 'funding':
+        sorted.sort((a, b) => (b.maxAccountSize || 0) - (a.maxAccountSize || 0));
+        break;
+      case 'payout':
+        sorted.sort((a, b) => {
+          const parseTime = (s: string) => { const n = parseInt(s); return isNaN(n) ? 999 : n; };
+          return parseTime(a.payoutTime || '999') - parseTime(b.payoutTime || '999');
+        });
+        break;
     }
-
-    return matchesSearch && matchesRating && matchesProfitSplit && matchesDrawdown && matchesType;
-  });
+    return sorted;
+  }, [firms, searchTerm, minRating, profitSplit, maxDrawdown, selectedAccountType, selectedAssets, sortBy]);
 
   return (
     <main className="flex-grow pt-24 pb-20 bg-dark min-h-screen relative overflow-hidden">
@@ -128,7 +170,7 @@ const BrowseFirmsPage: React.FC = () => {
                     <SlidersHorizontal className="w-5 h-5 text-primary" /> Filters
                   </h3>
                   <button
-                    onClick={() => { setSearchTerm(''); setProfitSplit(80); setMaxDrawdown(10); setMinRating(4); setSelectedAccountType(null); }}
+                    onClick={() => { setSearchTerm(''); setProfitSplit(80); setMaxDrawdown(10); setMinRating(0); setSelectedAccountType(null); setSelectedAssets([]); setSortBy('trust'); }}
                     className="text-xs font-medium text-gray-400 hover:text-white transition-colors"
                   >
                     Reset All
@@ -248,12 +290,13 @@ const BrowseFirmsPage: React.FC = () => {
                   <div className="space-y-3">
                     {['Forex', 'Indices', 'Commodities', 'Crypto'].map((asset) => (
                       <label key={asset} className="flex items-center gap-3 group cursor-pointer select-none">
-                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${['Indices', 'Forex'].includes(asset) ? 'bg-primary border-primary' : 'bg-[#0f0b1e] border-white/20 group-hover:border-primary/50'}`}>
-                          {['Indices', 'Forex'].includes(asset) && <CheckCircle2 className="w-3.h-3 text-white" />}
+                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedAssets.includes(asset) ? 'bg-primary border-primary' : 'bg-[#0f0b1e] border-white/20 group-hover:border-primary/50'}`}>
+                          {selectedAssets.includes(asset) && <CheckCircle2 className="w-3 h-3 text-white" />}
                         </div>
                         <input
                           type="checkbox"
-                          defaultChecked={['Indices', 'Forex'].includes(asset)}
+                          checked={selectedAssets.includes(asset)}
+                          onChange={() => toggleAsset(asset)}
                           className="sr-only"
                         />
                         <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{asset}</span>
@@ -287,11 +330,15 @@ const BrowseFirmsPage: React.FC = () => {
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest hidden sm:block">Sort</span>
-                      <select className="bg-dark border border-white/10 text-white text-sm rounded-xl focus:ring-primary focus:border-primary block p-2.5 cursor-pointer outline-none shadow-inner">
-                        <option>Highest Trust Score</option>
-                        <option>Lowest Price</option>
-                        <option>Highest Max Funding</option>
-                        <option>Fastest Payouts</option>
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="bg-dark border border-white/10 text-white text-sm rounded-xl focus:ring-primary focus:border-primary block p-2.5 cursor-pointer outline-none shadow-inner"
+                      >
+                        <option value="trust">Highest Trust Score</option>
+                        <option value="price">Lowest Price</option>
+                        <option value="funding">Highest Max Funding</option>
+                        <option value="payout">Fastest Payouts</option>
                       </select>
                     </div>
                     <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
@@ -321,7 +368,7 @@ const BrowseFirmsPage: React.FC = () => {
                     <h3 className="text-2xl font-bold text-white mb-2">No perfect match found</h3>
                     <p className="text-gray-400 max-w-md">Try adjusting your filters (profit split or drawdown requirements) to discover more proprietary trading firms.</p>
                     <button
-                      onClick={() => { setSearchTerm(''); setProfitSplit(80); setMaxDrawdown(10); setMinRating(4); setSelectedAccountType(null); }}
+                      onClick={() => { setSearchTerm(''); setProfitSplit(80); setMaxDrawdown(10); setMinRating(0); setSelectedAccountType(null); setSelectedAssets([]); setSortBy('trust'); }}
                       className="mt-8 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-colors border border-white/10"
                     >
                       Clear All Filters

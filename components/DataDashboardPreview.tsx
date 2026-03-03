@@ -189,8 +189,8 @@ export const DataDashboardPreview: React.FC = () => {
                                     <p className="text-white/35 text-[13px] leading-relaxed mt-1.5">Our AI processes your unique trading profile across 50+ data points to deliver instant, precision-matched recommendations.</p>
                                 </div>
 
-                                {/* 3-Column Flow Visualization */}
-                                <div className="flex-grow grid grid-cols-[1fr_auto_1fr] gap-3 sm:gap-4 items-center relative z-10">
+                                {/* 3-Column Flow Visualization — stacks on mobile, 3-col on sm+ */}
+                                <div className="flex-grow grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-4 items-center relative z-10">
 
                                     {/* Column 1: YOUR PREFERENCES */}
                                     <div className="space-y-2.5">
@@ -236,10 +236,10 @@ export const DataDashboardPreview: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* Column 2: AI CORE (Center) */}
-                                    <div className="flex flex-col items-center justify-center space-y-3 px-1 sm:px-3">
-                                        <div className="flex items-center text-primary/30">
-                                            <div className="w-5 sm:w-8 h-px bg-gradient-to-r from-primary/40 to-primary/10" />
+                                    {/* Column 2: AI CORE (Center) — horizontal on mobile, vertical on sm+ */}
+                                    <div className="flex sm:flex-col items-center justify-center space-x-3 sm:space-x-0 sm:space-y-3 py-3 sm:py-0 sm:px-3">
+                                        <div className="hidden sm:flex items-center text-primary/30">
+                                            <div className="w-8 h-px bg-gradient-to-r from-primary/40 to-primary/10" />
                                             <ArrowUpRight className="w-3 h-3 text-primary/50 rotate-45 animate-pulse" style={{ animationDuration: '2s' }} />
                                         </div>
 
@@ -253,9 +253,9 @@ export const DataDashboardPreview: React.FC = () => {
 
                                         <div className="text-[8px] sm:text-[9px] text-primary font-bold tracking-[0.15em] uppercase text-center">AI Engine</div>
 
-                                        <div className="flex items-center text-primary/30">
+                                        <div className="hidden sm:flex items-center text-primary/30">
                                             <ArrowUpRight className="w-3 h-3 text-primary/50 rotate-45 animate-pulse" style={{ animationDuration: '2s', animationDelay: '1s' }} />
-                                            <div className="w-5 sm:w-8 h-px bg-gradient-to-l from-primary/40 to-primary/10" />
+                                            <div className="w-8 h-px bg-gradient-to-l from-primary/40 to-primary/10" />
                                         </div>
                                     </div>
 
@@ -363,9 +363,9 @@ export const DataDashboardPreview: React.FC = () => {
 
                                 <div className="space-y-3 flex-grow relative z-10">
                                     {/* FTMO */}
-                                    <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
-                                        <div className="flex items-center space-x-4">
-                                            <div className="w-11 h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-2 group-hover/item:border-white/[0.15] transition-colors">
+                                    <div className="flex items-center justify-between bg-white/[0.02] p-3 sm:p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
+                                        <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+                                            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-1.5 sm:p-2 group-hover/item:border-white/[0.15] transition-colors flex-shrink-0">
                                                 <img src={logoFtmo} alt="FTMO" className="w-full h-full object-contain opacity-90 group-hover/item:opacity-100 transition-opacity" />
                                             </div>
                                             <div>
@@ -373,8 +373,8 @@ export const DataDashboardPreview: React.FC = () => {
                                                 <div className="text-white/30 text-[10px] uppercase tracking-wider mt-0.5 font-medium">100k Standard</div>
                                             </div>
                                         </div>
-                                        <div className="text-right flex items-center space-x-4">
-                                            <Sparkline data={[540, 535, 538, 540, 542, 540, 540]} color="#10b981" />
+                                        <div className="text-right flex items-center space-x-3 sm:space-x-4">
+                                            <Sparkline data={[540, 535, 538, 540, 542, 540, 540]} color="#10b981" className="hidden sm:block" />
                                             <div>
                                                 <div className="text-white font-bold text-[16px]">$540</div>
                                                 <div className="text-primary text-[9px] uppercase font-bold mt-1 tracking-[0.15em]">Top Tier</div>
@@ -383,10 +383,10 @@ export const DataDashboardPreview: React.FC = () => {
                                     </div>
 
                                     {/* FundedNext */}
-                                    <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default relative overflow-hidden">
+                                    <div className="flex items-center justify-between bg-white/[0.02] p-3 sm:p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default relative overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-gold/[0.03] to-transparent pointer-events-none" />
-                                        <div className="flex items-center space-x-4 relative z-10">
-                                            <div className="w-11 h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-1.5 group-hover/item:border-white/[0.15] transition-colors">
+                                        <div className="flex items-center space-x-3 sm:space-x-4 relative z-10 min-w-0">
+                                            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-1.5 group-hover/item:border-white/[0.15] transition-colors flex-shrink-0">
                                                 <img src={logoFundedNext} alt="FundedNext" className="w-full h-full object-contain opacity-90 group-hover/item:opacity-100 transition-opacity drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]" />
                                             </div>
                                             <div>
@@ -394,8 +394,8 @@ export const DataDashboardPreview: React.FC = () => {
                                                 <div className="text-white/30 text-[10px] uppercase tracking-wider mt-0.5 font-medium">100k Stellar</div>
                                             </div>
                                         </div>
-                                        <div className="text-right flex items-center space-x-4 relative z-10">
-                                            <Sparkline data={[515, 519, 517, 520, 518, 519, 519]} color="#f59e0b" />
+                                        <div className="text-right flex items-center space-x-3 sm:space-x-4 relative z-10">
+                                            <Sparkline data={[515, 519, 517, 520, 518, 519, 519]} color="#f59e0b" className="hidden sm:block" />
                                             <div>
                                                 <div className="text-white font-bold text-[16px]">$519</div>
                                                 <div className="text-brand-gold text-[9px] uppercase font-bold mt-1 tracking-[0.15em]">Trending</div>
@@ -404,9 +404,9 @@ export const DataDashboardPreview: React.FC = () => {
                                     </div>
 
                                     {/* The5ers */}
-                                    <div className="flex items-center justify-between bg-white/[0.02] p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
-                                        <div className="flex items-center space-x-4">
-                                            <div className="w-11 h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-2 group-hover/item:border-white/[0.15] transition-colors">
+                                    <div className="flex items-center justify-between bg-white/[0.02] p-3 sm:p-4 rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group/item cursor-default">
+                                        <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+                                            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-white/[0.03] rounded-xl border border-white/[0.08] flex items-center justify-center p-1.5 sm:p-2 group-hover/item:border-white/[0.15] transition-colors flex-shrink-0">
                                                 <img src={logo5ers} alt="The5%ers" className="w-full h-full object-contain opacity-90 group-hover/item:opacity-100 transition-opacity drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]" />
                                             </div>
                                             <div>
@@ -414,8 +414,8 @@ export const DataDashboardPreview: React.FC = () => {
                                                 <div className="text-white/30 text-[10px] uppercase tracking-wider mt-0.5 font-medium">100k Hyper Growth</div>
                                             </div>
                                         </div>
-                                        <div className="text-right flex items-center space-x-4">
-                                            <Sparkline data={[450, 460, 455, 462, 458, 460, 460]} color="#8b5cf6" />
+                                        <div className="text-right flex items-center space-x-3 sm:space-x-4">
+                                            <Sparkline data={[450, 460, 455, 462, 458, 460, 460]} color="#8b5cf6" className="hidden sm:block" />
                                             <div>
                                                 <div className="text-white font-bold text-[16px]">$460</div>
                                                 <div className="text-purple-400 text-[9px] uppercase font-bold mt-1 tracking-[0.15em]">Popular</div>
