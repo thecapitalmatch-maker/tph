@@ -84,7 +84,7 @@ const ContactPage = () => {
                             </div>
                         </div>
 
-                        <a href="https://discord.gg/novatrading" target="_blank" rel="noopener noreferrer" className="block">
+                        <a href="https://discord.gg/6MknbESVS6" target="_blank" rel="noopener noreferrer" className="block">
                             <div className="bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-2xl p-6 hover:bg-[#5865F2]/20 transition-colors group">
                                 <div className="flex items-start space-x-5">
                                     <div className="w-14 h-14 rounded-2xl bg-[#5865F2]/20 flex items-center justify-center flex-shrink-0 border border-[#5865F2]/30 group-hover:scale-110 transition-transform duration-300">
