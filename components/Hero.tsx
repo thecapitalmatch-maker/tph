@@ -68,17 +68,14 @@ const Floating3DTile: React.FC<TileProps> = ({ src, alt, color, darkColor, class
 };
 
 export const Hero: React.FC<HeroProps> = ({ onStartQuiz, onExplore }) => {
-  // Generate random static stars for the mobile background
+  // Generate fast diagonal shooting stars for mobile
   const mobileStars = React.useMemo(() => {
-    return Array.from({ length: 25 }).map(() => ({
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * -20}%`, // Start slightly above viewport
-      width: `${Math.random() * 2 + 1}px`,
-      height: `${Math.random() * 3 + 1}px`, // Slight stretch for motion vibe
-      animationDuration: `${Math.random() * 5 + 8}s`, // Between 8s and 13s
-      animationDelay: `${Math.random() * 10}s`,
-      // Setting opacity here sets the max opacity scaling for the animation
-      opacity: Math.random() * 0.5 + 0.2,
+    return Array.from({ length: 8 }).map(() => ({
+      left: `${30 + Math.random() * 100}%`, // Start from right side to shoot left
+      top: `${-10 + Math.random() * 50}%`, // Start in top half
+      width: `${Math.random() * 80 + 60}px`, // Long tail
+      animationDuration: `${Math.random() * 4 + 4}s`, // Cycle every 4-8s
+      animationDelay: `${Math.random() * 8}s`,
     }));
   }, []);
 
@@ -138,16 +135,30 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuiz, onExplore }) => {
           100% { transform: translateX(100%); }
         }
         @keyframes falling-star {
-          0% { transform: translateY(-10vh) translateX(0); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateY(110vh) translateX(20px); opacity: 0; }
+          0% { transform: translate(0, 0) rotate(-45deg); opacity: 0; }
+          2% { opacity: 1; }
+          12% { transform: translate(-150vw, 150vw) rotate(-45deg); opacity: 0; }
+          100% { transform: translate(-150vw, 150vw) rotate(-45deg); opacity: 0; }
         }
         .star {
           position: absolute;
-          background: white;
-          border-radius: 50%;
+          background: linear-gradient(90deg, rgba(255,255,255,1), transparent);
+          height: 1px;
+          border-radius: 999px;
           animation: falling-star linear infinite;
+          transform-origin: left background;
+        }
+        .star::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 3px;
+          background: #fff;
+          border-radius: 50%;
+          box-shadow: 0 0 8px 2px rgba(255,255,255,0.8), 0 0 16px 4px rgba(10, 193, 201, 0.4);
         }
       `}</style>
 
