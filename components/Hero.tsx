@@ -129,7 +129,11 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuiz, onExplore }) => {
       <div className="absolute inset-0 z-0">
         <img src={heroBgClean} alt="Hero Background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[#030014]/90 backdrop-blur-sm"></div>
-        {/* Animated Orbs for Depth */}
+
+        {/* Mobile-Only Top Half Circle (180 degree dome) */}
+        <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[150%] h-[350px] bg-gradient-to-b from-primary/40 via-primary/10 to-transparent rounded-b-[100%] filter blur-[50px] md:hidden pointer-events-none"></div>
+
+        {/* Animated Orbs for Depth (Desktop/Tablet mostly) */}
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
         <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-secondary/20 rounded-full mix-blend-screen filter blur-[150px] animate-blob" style={{ animationDelay: '2s' }}></div>
       </div>
