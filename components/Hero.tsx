@@ -68,6 +68,20 @@ const Floating3DTile: React.FC<TileProps> = ({ src, alt, color, darkColor, class
 };
 
 export const Hero: React.FC<HeroProps> = ({ onStartQuiz, onExplore }) => {
+  // Generate random static stars for the mobile background
+  const mobileStars = React.useMemo(() => {
+    return Array.from({ length: 25 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * -20}%`, // Start slightly above viewport
+      width: `${Math.random() * 2 + 1}px`,
+      height: `${Math.random() * 3 + 1}px`, // Slight stretch for motion vibe
+      animationDuration: `${Math.random() * 5 + 8}s`, // Between 8s and 13s
+      animationDelay: `${Math.random() * 10}s`,
+      // Setting opacity here sets the max opacity scaling for the animation
+      opacity: Math.random() * 0.5 + 0.2,
+    }));
+  }, []);
+
   return (
     <div className="relative pt-24 pb-32 overflow-hidden min-h-screen flex flex-col justify-center perspective-container">
       <style>{`
@@ -123,19 +137,38 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuiz, onExplore }) => {
         @keyframes shimmer {
           100% { transform: translateX(100%); }
         }
+        @keyframes falling-star {
+          0% { transform: translateY(-10vh) translateX(0); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(110vh) translateX(20px); opacity: 0; }
+        }
+        .star {
+          position: absolute;
+          background: white;
+          border-radius: 50%;
+          animation: falling-star linear infinite;
+        }
       `}</style>
 
       {/* Background Layer */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <img src={heroBgClean} alt="Hero Background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[#030014]/90 backdrop-blur-sm"></div>
 
         {/* Mobile-Only Top Half Circle (180 degree dome) */}
         <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[150%] h-[350px] bg-gradient-to-b from-primary/40 via-primary/10 to-transparent rounded-b-[100%] filter blur-[50px] md:hidden pointer-events-none"></div>
 
+        {/* Mobile-Only Falling Stars Background */}
+        <div className="absolute inset-0 pointer-events-none md:hidden z-0">
+          {mobileStars.map((style, i) => (
+            <div key={i} className="star" style={style} />
+          ))}
+        </div>
+
         {/* Animated Orbs for Depth (Desktop/Tablet mostly) */}
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-secondary/20 rounded-full mix-blend-screen filter blur-[150px] animate-blob" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full mix-blend-screen filter blur-[120px] animate-blob hidden md:block"></div>
+        <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-secondary/20 rounded-full mix-blend-screen filter blur-[150px] animate-blob hidden md:block" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full pt-10 mt-10 md:mt-20">
