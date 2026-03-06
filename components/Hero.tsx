@@ -129,43 +129,43 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuiz, onExplore }) => {
           100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
         }
         @keyframes floatBlob1 {
-          0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          33% { transform: translate(30px, -50px) scale(1.1) rotate(120deg); }
-          66% { transform: translate(-20px, 20px) scale(0.9) rotate(240deg); }
-          100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+          0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+          33% { transform: translate3d(30px, -50px, 0) scale(1.1) rotate(120deg); }
+          66% { transform: translate3d(-20px, 20px, 0) scale(0.9) rotate(240deg); }
+          100% { transform: translate3d(0, 0, 0) scale(1) rotate(360deg); }
         }
         @keyframes floatBlob2 {
-          0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          33% { transform: translate(-30px, 50px) scale(1.2) rotate(-120deg); }
-          66% { transform: translate(20px, -20px) scale(0.8) rotate(-240deg); }
-          100% { transform: translate(0, 0) scale(1) rotate(-360deg); }
+          0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+          33% { transform: translate3d(-30px, 50px, 0) scale(1.2) rotate(-120deg); }
+          66% { transform: translate3d(20px, -20px, 0) scale(0.8) rotate(-240deg); }
+          100% { transform: translate3d(0, 0, 0) scale(1) rotate(-360deg); }
         }
         @keyframes floatBlob3 {
-          0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          33% { transform: translate(40px, 40px) scale(0.9) rotate(90deg); }
-          66% { transform: translate(-40px, -40px) scale(1.1) rotate(180deg); }
-          100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+          0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+          33% { transform: translate3d(40px, 40px, 0) scale(0.9) rotate(90deg); }
+          66% { transform: translate3d(-40px, -40px, 0) scale(1.1) rotate(180deg); }
+          100% { transform: translate3d(0, 0, 0) scale(1) rotate(360deg); }
         }
         .aurora-blob {
           position: absolute;
-          filter: blur(60px);
           opacity: 0.8;
           mix-blend-screen: screen;
           pointer-events: none;
+          will-change: transform, border-radius;
         }
         .aurora-1 {
           top: -10%; left: -10%; width: 250px; height: 250px;
-          background: radial-gradient(circle at center, rgba(10, 193, 201, 0.8), rgba(10, 193, 201, 0));
+          background: radial-gradient(circle at center, rgba(10, 193, 201, 0.8) 0%, rgba(10, 193, 201, 0) 70%);
           animation: morphBlob 10s ease-in-out infinite both alternate, floatBlob1 15s ease-in-out infinite both alternate;
         }
         .aurora-2 {
           top: 20%; right: -20%; width: 300px; height: 300px;
-          background: radial-gradient(circle at center, rgba(0, 230, 160, 0.6), rgba(0, 230, 160, 0));
+          background: radial-gradient(circle at center, rgba(0, 230, 160, 0.6) 0%, rgba(0, 230, 160, 0) 70%);
           animation: morphBlob 12s ease-in-out infinite both alternate, floatBlob2 18s ease-in-out infinite both alternate;
         }
         .aurora-3 {
           bottom: 20%; left: 10%; width: 220px; height: 220px;
-          background: radial-gradient(circle at center, rgba(12, 140, 233, 0.7), rgba(12, 140, 233, 0));
+          background: radial-gradient(circle at center, rgba(12, 140, 233, 0.7) 0%, rgba(12, 140, 233, 0) 70%);
           animation: morphBlob 14s ease-in-out infinite both alternate, floatBlob3 20s ease-in-out infinite both alternate;
         }
       `}</style>
@@ -179,12 +179,12 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuiz, onExplore }) => {
         <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[150%] h-[350px] bg-gradient-to-b from-primary/40 via-primary/10 to-transparent rounded-b-[100%] filter blur-[50px] md:hidden pointer-events-none"></div>
 
         {/* Mobile-Only Fluid Aurora Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none md:hidden opacity-90">
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none md:hidden opacity-90" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
           <div className="aurora-blob aurora-1"></div>
           <div className="aurora-blob aurora-2"></div>
           <div className="aurora-blob aurora-3"></div>
           {/* Subtle noise overlay for organic premium texture */}
-          <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}></div>
+          <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{ transform: 'translateZ(0)', willChange: 'opacity, transform', backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}></div>
         </div>
 
         {/* Animated Orbs for Depth (Desktop/Tablet mostly) */}
